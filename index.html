@@ -175,6 +175,241 @@
       background: #444;
     }
 
+
+    /* =========================
+       INTRODUÇÃO
+    ========================= */
+
+    .introducao {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+
+    .introducao-texto {
+      font-size: 17px;
+      line-height: 1.55;
+      color: #333;
+      white-space: pre-line;
+    }
+
+
+    .aviso-inicial {
+      padding: 16px;
+      border: 1px solid #ddd;
+      border-left: 4px solid #222;
+      border-radius: 12px;
+      background: #fafafa;
+      color: #333;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+
+    .aviso-inicial strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+
+    .campo-introducao {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+
+    .campo-introducao label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+    }
+
+
+    .campo-introducao input {
+      width: 100%;
+      min-height: 55px;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      font-size: 17px;
+      outline: none;
+    }
+
+
+    .campo-introducao input:focus {
+      border-color: #888;
+    }
+
+
+    .botao-continuar {
+      width: 100%;
+      min-height: 55px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 12px;
+      background: #222;
+      color: #fff;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+
+    .botao-continuar:hover {
+      background: #444;
+    }
+
+
+    .botao-continuar:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+
+    /* =========================
+       AVALIAÇÃO
+    ========================= */
+
+    .avaliacao {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+
+    .avaliacao-texto {
+      font-size: 17px;
+      line-height: 1.55;
+      color: #333;
+    }
+
+
+    .estrelas {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 0;
+    }
+
+
+    .estrela {
+      border: none;
+      background: transparent;
+      font-size: 42px;
+      line-height: 1;
+      color: #ccc;
+      cursor: pointer;
+      padding: 4px;
+      transition: transform 0.15s ease;
+    }
+
+
+    .estrela:hover {
+      transform: scale(1.08);
+    }
+
+
+    .estrela.selecionada {
+      color: #f5b301;
+    }
+
+
+    .avaliacao-nota {
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      min-height: 20px;
+    }
+
+
+    .campo-feedback {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+
+    .campo-feedback label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+    }
+
+
+    .campo-feedback textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+    }
+
+
+    .campo-feedback textarea:focus {
+      border-color: #888;
+    }
+
+
+    .campo-feedback textarea::placeholder {
+      color: #999;
+    }
+
+
+    .botao-avaliacao {
+      width: 100%;
+      min-height: 55px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 12px;
+      background: #222;
+      color: #fff;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+
+    .botao-avaliacao:hover {
+      background: #444;
+    }
+
+
+    .botao-avaliacao:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+
+    /* =========================
+       FINALIZAÇÃO
+    ========================= */
+
+    .finalizacao {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+
+
+    .finalizacao-icone {
+      font-size: 48px;
+    }
+
+
+    .finalizacao-texto {
+      font-size: 17px;
+      line-height: 1.55;
+      color: #333;
+    }
+
   </style>
 
 </head>
@@ -190,7 +425,7 @@
       id="status"
       class="status"
     >
-      Conectando à base de conhecimento...
+      Iniciando atendimento...
     </div>
 
     <div id="conteudo"></div>
@@ -224,11 +459,19 @@
        ESTADO DO ATENDIMENTO
     ===================================================== */
 
+    window.nomeInstalador = "";
+
+    window.revenda = "";
+
     window.motorSelecionado = null;
 
     window.controleSelecionado = null;
 
     window.problemaSelecionado = null;
+
+    window.avaliacaoSelecionada = 0;
+
+    window.feedback = "";
 
 
     /* =====================================================
@@ -253,6 +496,280 @@
 
 
       return await resposta.json();
+
+    }
+
+
+    /* =====================================================
+       INTRODUÇÃO
+    ===================================================== */
+
+    function apresentarIntroducao() {
+
+      status.textContent =
+        "Identificação do atendimento";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "introducao";
+
+
+      /* =========================
+         APRESENTAÇÃO
+      ========================= */
+
+      const texto =
+        document.createElement("div");
+
+      texto.className =
+        "introducao-texto";
+
+      texto.textContent =
+        "Olá! Seja bem-vindo ao Assistente Técnico.\n\n" +
+        "Antes de começarmos, preciso de algumas informações para registrar o atendimento.";
+
+
+      container.appendChild(
+        texto
+      );
+
+
+      /* =========================
+         AVISO
+      ========================= */
+
+      const aviso =
+        document.createElement("div");
+
+      aviso.className =
+        "aviso-inicial";
+
+      aviso.innerHTML =
+        "<strong>Importante</strong>" +
+        "Este Assistente Técnico é destinado exclusivamente " +
+        "à orientação relacionada à programação de motores. " +
+        "As orientações apresentadas são baseadas na base técnica cadastrada. " +
+        "Caso a situação não possua uma orientação compatível, " +
+        "o atendimento deverá ser direcionado para a fábrica.";
+
+
+      container.appendChild(
+        aviso
+      );
+
+
+      /* =========================
+         NOME
+      ========================= */
+
+      const campoNome =
+        document.createElement("div");
+
+      campoNome.className =
+        "campo-introducao";
+
+
+      const labelNome =
+        document.createElement("label");
+
+      labelNome.textContent =
+        "Nome do instalador";
+
+
+      const inputNome =
+        document.createElement("input");
+
+      inputNome.type =
+        "text";
+
+      inputNome.id =
+        "nomeInstalador";
+
+      inputNome.placeholder =
+        "Digite seu nome";
+
+      inputNome.autocomplete =
+        "name";
+
+
+      campoNome.appendChild(
+        labelNome
+      );
+
+      campoNome.appendChild(
+        inputNome
+      );
+
+
+      container.appendChild(
+        campoNome
+      );
+
+
+      /* =========================
+         REVENDA
+      ========================= */
+
+      const campoRevenda =
+        document.createElement("div");
+
+      campoRevenda.className =
+        "campo-introducao";
+
+
+      const labelRevenda =
+        document.createElement("label");
+
+      labelRevenda.textContent =
+        "Revenda";
+
+
+      const inputRevenda =
+        document.createElement("input");
+
+      inputRevenda.type =
+        "text";
+
+      inputRevenda.id =
+        "revenda";
+
+      inputRevenda.placeholder =
+        "Digite o nome da revenda";
+
+
+      campoRevenda.appendChild(
+        labelRevenda
+      );
+
+      campoRevenda.appendChild(
+        inputRevenda
+      );
+
+
+      container.appendChild(
+        campoRevenda
+      );
+
+
+      /* =========================
+         BOTÃO
+      ========================= */
+
+      const botao =
+        document.createElement("button");
+
+      botao.className =
+        "botao-continuar";
+
+      botao.textContent =
+        "Continuar";
+
+
+      botao.addEventListener(
+        "click",
+        function() {
+
+          iniciarAtendimento();
+
+        }
+      );
+
+
+      container.appendChild(
+        botao
+      );
+
+
+      conteudo.appendChild(
+        container
+      );
+
+
+      inputNome.focus();
+
+    }
+
+
+    /* =====================================================
+       INICIAR ATENDIMENTO APÓS INTRODUÇÃO
+    ===================================================== */
+
+    function iniciarAtendimento() {
+
+      const inputNome =
+        document.getElementById("nomeInstalador");
+
+      const inputRevenda =
+        document.getElementById("revenda");
+
+
+      if (!inputNome || !inputRevenda) {
+
+        listarMotores();
+
+        return;
+
+      }
+
+
+      const nome =
+        inputNome.value.trim();
+
+      const revenda =
+        inputRevenda.value.trim();
+
+
+      if (!nome) {
+
+        alert(
+          "Informe o nome do instalador."
+        );
+
+        inputNome.focus();
+
+        return;
+
+      }
+
+
+      if (!revenda) {
+
+        alert(
+          "Informe o nome da revenda."
+        );
+
+        inputRevenda.focus();
+
+        return;
+
+      }
+
+
+      window.nomeInstalador =
+        nome;
+
+      window.revenda =
+        revenda;
+
+
+      console.log(
+        "Instalador:",
+        window.nomeInstalador
+      );
+
+      console.log(
+        "Revenda:",
+        window.revenda
+      );
+
+
+      listarMotores();
 
     }
 
@@ -1170,10 +1687,6 @@
         }
 
 
-        /* ---------------------------------------------
-           BOTÃO DO VÍDEO
-        --------------------------------------------- */
-
         adicionarBotaoVideo(
           blocoProcedimento,
           procedimento.linkVideo
@@ -1342,10 +1855,6 @@
       }
 
 
-      /* ---------------------------------------------
-         BOTÃO DO VÍDEO
-      --------------------------------------------- */
-
       adicionarBotaoVideo(
         container,
         procedimento.linkVideo
@@ -1501,7 +2010,7 @@
     ) {
 
       status.textContent =
-        "Resultado";
+        "Atendimento concluído";
 
       conteudo.innerHTML =
         "";
@@ -1521,7 +2030,7 @@
         "resultado-titulo";
 
       titulo.textContent =
-        "Orientação técnica";
+        "Atendimento concluído.";
 
 
       container.appendChild(
@@ -1536,8 +2045,7 @@
         "resultado-texto";
 
       texto.textContent =
-        mensagem ||
-        "Processo concluído.";
+        "A orientação foi concluída. Você precisa de mais alguma ajuda?";
 
 
       container.appendChild(
@@ -1545,38 +2053,728 @@
       );
 
 
-      const botaoReiniciar =
+      const choices =
+        document.createElement("div");
+
+      choices.className =
+        "choices";
+
+
+      /* =========================
+         SIM — CONTINUAR
+      ========================= */
+
+      const botaoSim =
         document.createElement("button");
 
-      botaoReiniciar.className =
-        "botao-reiniciar";
+      botaoSim.className =
+        "choice";
 
-      botaoReiniciar.textContent =
-        "Novo atendimento";
+      botaoSim.textContent =
+        "Sim, continuar atendimento";
 
 
-      botaoReiniciar.addEventListener(
+      botaoSim.addEventListener(
         "click",
         function() {
 
-          window.motorSelecionado =
-            null;
+          apresentarContinuacaoAtendimento();
 
-          window.controleSelecionado =
-            null;
-
-          window.problemaSelecionado =
-            null;
+        }
+      );
 
 
-          listarMotores();
+      choices.appendChild(
+        botaoSim
+      );
+
+
+      /* =========================
+         NÃO — ENCERRAR
+      ========================= */
+
+      const botaoNao =
+        document.createElement("button");
+
+      botaoNao.className =
+        "choice";
+
+      botaoNao.textContent =
+        "Não, encerrar atendimento";
+
+
+      botaoNao.addEventListener(
+        "click",
+        function() {
+
+          encerrarAtendimento();
+
+        }
+      );
+
+
+      choices.appendChild(
+        botaoNao
+      );
+
+
+      container.appendChild(
+        choices
+      );
+
+
+      conteudo.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =====================================================
+       PERGUNTAR SE É MESMO MOTOR OU OUTRO MOTOR
+    ===================================================== */
+
+    function apresentarContinuacaoAtendimento() {
+
+      status.textContent =
+        "Continuar atendimento";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "resultado";
+
+
+      const question =
+        document.createElement("div");
+
+      question.className =
+        "question";
+
+      question.textContent =
+        "O próximo atendimento é para este mesmo motor ou para outro motor?";
+
+
+      container.appendChild(
+        question
+      );
+
+
+      const choices =
+        document.createElement("div");
+
+      choices.className =
+        "choices";
+
+
+      /* =========================
+         MESMO MOTOR
+      ========================= */
+
+      const botaoMesmoMotor =
+        document.createElement("button");
+
+      botaoMesmoMotor.className =
+        "choice";
+
+      botaoMesmoMotor.textContent =
+        "Mesmo motor";
+
+
+      botaoMesmoMotor.addEventListener(
+        "click",
+        function() {
+
+          continuarMesmoMotor();
+
+        }
+      );
+
+
+      choices.appendChild(
+        botaoMesmoMotor
+      );
+
+
+      /* =========================
+         OUTRO MOTOR
+      ========================= */
+
+      const botaoOutroMotor =
+        document.createElement("button");
+
+      botaoOutroMotor.className =
+        "choice";
+
+      botaoOutroMotor.textContent =
+        "Outro motor";
+
+
+      botaoOutroMotor.addEventListener(
+        "click",
+        function() {
+
+          continuarOutroMotor();
+
+        }
+      );
+
+
+      choices.appendChild(
+        botaoOutroMotor
+      );
+
+
+      container.appendChild(
+        choices
+      );
+
+
+      conteudo.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =====================================================
+       CONTINUAR COM O MESMO MOTOR
+    ===================================================== */
+
+    async function continuarMesmoMotor() {
+
+      if (
+        !window.motorSelecionado ||
+        !window.controleSelecionado
+      ) {
+
+        listarMotores();
+
+        return;
+
+      }
+
+
+      window.problemaSelecionado =
+        null;
+
+
+      status.textContent =
+        "Carregando problemas...";
+
+      conteudo.innerHTML =
+        '<div class="loading">Carregando problemas...</div>';
+
+
+      try {
+
+        const resultado =
+          await chamarAPI({
+
+            acao:
+              "listarProblemas",
+
+            motorId:
+              window.motorSelecionado.id,
+
+            controleId:
+              window.controleSelecionado.id
+
+          });
+
+
+        console.log(
+          "Resposta dos problemas:",
+          resultado
+        );
+
+
+        if (!resultado.sucesso) {
+
+          throw new Error(
+            resultado.erro ||
+            "Não foi possível carregar os problemas."
+          );
+
+        }
+
+
+        apresentarProblemas(
+          resultado.problemas
+        );
+
+
+      } catch (erro) {
+
+        console.error(erro);
+
+        status.textContent =
+          "Erro ao carregar os problemas.";
+
+        conteudo.innerHTML =
+          '<div class="error">' +
+          erro.message +
+          '</div>';
+
+      }
+
+    }
+
+
+    /* =====================================================
+       CONTINUAR COM OUTRO MOTOR
+    ===================================================== */
+
+    function continuarOutroMotor() {
+
+      window.motorSelecionado =
+        null;
+
+      window.controleSelecionado =
+        null;
+
+      window.problemaSelecionado =
+        null;
+
+
+      listarMotores();
+
+    }
+
+
+    /* =====================================================
+       ENCERRAR ATENDIMENTO
+    ===================================================== */
+
+    function encerrarAtendimento() {
+
+      apresentarAvaliacao();
+
+    }
+
+
+    /* =====================================================
+       APRESENTAR AVALIAÇÃO
+    ===================================================== */
+
+    function apresentarAvaliacao() {
+
+      status.textContent =
+        "Avaliação do atendimento";
+
+      conteudo.innerHTML =
+        "";
+
+
+      window.avaliacaoSelecionada =
+        0;
+
+      window.feedback =
+        "";
+
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "avaliacao";
+
+
+      /* =========================
+         TÍTULO
+      ========================= */
+
+      const titulo =
+        document.createElement("div");
+
+      titulo.className =
+        "resultado-titulo";
+
+      titulo.textContent =
+        "Como foi o seu atendimento?";
+
+
+      container.appendChild(
+        titulo
+      );
+
+
+      /* =========================
+         TEXTO
+      ========================= */
+
+      const texto =
+        document.createElement("div");
+
+      texto.className =
+        "avaliacao-texto";
+
+      texto.textContent =
+        "Sua avaliação nos ajuda a melhorar continuamente o Assistente Técnico.";
+
+
+      container.appendChild(
+        texto
+      );
+
+
+      /* =========================
+         ESTRELAS
+      ========================= */
+
+      const estrelas =
+        document.createElement("div");
+
+      estrelas.className =
+        "estrelas";
+
+
+      for (
+        let i = 1;
+        i <= 5;
+        i++
+      ) {
+
+        const estrela =
+          document.createElement("button");
+
+        estrela.className =
+          "estrela";
+
+        estrela.type =
+          "button";
+
+        estrela.textContent =
+          "★";
+
+        estrela.setAttribute(
+          "aria-label",
+          i + " estrela" +
+          (i > 1 ? "s" : "")
+        );
+
+
+        estrela.addEventListener(
+          "click",
+          function() {
+
+            selecionarEstrela(
+              i,
+              estrelas,
+              nota
+            );
+
+          }
+        );
+
+
+        estrelas.appendChild(
+          estrela
+        );
+
+      }
+
+
+      container.appendChild(
+        estrelas
+      );
+
+
+      /* =========================
+         NOTA
+      ========================= */
+
+      const nota =
+        document.createElement("div");
+
+      nota.className =
+        "avaliacao-nota";
+
+      nota.textContent =
+        "Selecione uma avaliação";
+
+
+      container.appendChild(
+        nota
+      );
+
+
+      /* =========================
+         FEEDBACK
+      ========================= */
+
+      const campoFeedback =
+        document.createElement("div");
+
+      campoFeedback.className =
+        "campo-feedback";
+
+
+      const labelFeedback =
+        document.createElement("label");
+
+      labelFeedback.textContent =
+        "Gostaria de deixar algum comentário?";
+
+
+      const textarea =
+        document.createElement("textarea");
+
+      textarea.id =
+        "feedback";
+
+      textarea.placeholder =
+        "Conte-nos como podemos melhorar o atendimento...";
+
+
+      campoFeedback.appendChild(
+        labelFeedback
+      );
+
+      campoFeedback.appendChild(
+        textarea
+      );
+
+
+      container.appendChild(
+        campoFeedback
+      );
+
+
+      /* =========================
+         BOTÃO ENVIAR
+      ========================= */
+
+      const botaoEnviar =
+        document.createElement("button");
+
+      botaoEnviar.className =
+        "botao-avaliacao";
+
+      botaoEnviar.textContent =
+        "Enviar avaliação";
+
+      botaoEnviar.disabled =
+        true;
+
+
+      botaoEnviar.addEventListener(
+        "click",
+        function() {
+
+          finalizarAvaliacao(
+            textarea
+          );
 
         }
       );
 
 
       container.appendChild(
-        botaoReiniciar
+        botaoEnviar
+      );
+
+
+      conteudo.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =====================================================
+       SELECIONAR ESTRELA
+    ===================================================== */
+
+    function selecionarEstrela(
+      quantidade,
+      containerEstrelas,
+      elementoNota
+    ) {
+
+      window.avaliacaoSelecionada =
+        quantidade;
+
+
+      const estrelas =
+        containerEstrelas.querySelectorAll(
+          ".estrela"
+        );
+
+
+      estrelas.forEach(
+        function(estrela, indice) {
+
+          if (
+            indice < quantidade
+          ) {
+
+            estrela.classList.add(
+              "selecionada"
+            );
+
+          } else {
+
+            estrela.classList.remove(
+              "selecionada"
+            );
+
+          }
+
+        }
+      );
+
+
+      const descricoes = {
+
+        1:
+          "Muito ruim",
+
+        2:
+          "Ruim",
+
+        3:
+          "Regular",
+
+        4:
+          "Bom",
+
+        5:
+          "Excelente"
+
+      };
+
+
+      elementoNota.textContent =
+        quantidade +
+        " de 5 — " +
+        descricoes[quantidade];
+
+
+      const botaoEnviar =
+        document.querySelector(
+          ".botao-avaliacao"
+        );
+
+
+      if (botaoEnviar) {
+
+        botaoEnviar.disabled =
+          false;
+
+      }
+
+    }
+
+
+    /* =====================================================
+       FINALIZAR AVALIAÇÃO
+    ===================================================== */
+
+    function finalizarAvaliacao(
+      textarea
+    ) {
+
+      if (
+        !window.avaliacaoSelecionada
+      ) {
+
+        alert(
+          "Selecione uma avaliação antes de continuar."
+        );
+
+        return;
+
+      }
+
+
+      window.feedback =
+        textarea.value.trim();
+
+
+      console.log(
+        "Avaliação:",
+        window.avaliacaoSelecionada
+      );
+
+      console.log(
+        "Feedback:",
+        window.feedback
+      );
+
+
+      apresentarConfirmacaoAvaliacao();
+
+    }
+
+
+    /* =====================================================
+       CONFIRMAÇÃO DA AVALIAÇÃO
+    ===================================================== */
+
+    function apresentarConfirmacaoAvaliacao() {
+
+      status.textContent =
+        "Avaliação registrada";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "finalizacao";
+
+
+      const icone =
+        document.createElement("div");
+
+      icone.className =
+        "finalizacao-icone";
+
+      icone.textContent =
+        "✓";
+
+
+      container.appendChild(
+        icone
+      );
+
+
+      const titulo =
+        document.createElement("div");
+
+      titulo.className =
+        "resultado-titulo";
+
+      titulo.textContent =
+        "Obrigado pela sua avaliação!";
+
+
+      container.appendChild(
+        titulo
+      );
+
+
+      const texto =
+        document.createElement("div");
+
+      texto.className =
+        "finalizacao-texto";
+
+      texto.textContent =
+        "Seu feedback é importante para continuarmos melhorando o Assistente Técnico Amorim Motorização.";
+
+
+      container.appendChild(
+        texto
       );
 
 
@@ -1591,7 +2789,7 @@
        INICIAR
     ===================================================== */
 
-    listarMotores();
+    apresentarIntroducao();
 
 
   </script>
