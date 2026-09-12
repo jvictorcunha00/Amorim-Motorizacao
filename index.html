@@ -2,24 +2,1598 @@
 <html lang="pt-BR">
 
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Amorim Motorização</title>
 
-  <link rel="manifest" href="manifest.json">
 
-  <meta name="theme-color" content="#ffffff">
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+    }
+
+
+    .app {
+      width: 100%;
+      max-width: 700px;
+      min-height: 100vh;
+      background: #fff;
+      padding: 24px;
+    }
+
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+
+    .status {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+
+    .question {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+
+    .choice {
+      width: 100%;
+      min-height: 60px;
+      padding: 16px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: #fff;
+      text-align: left;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+
+    .choice:hover {
+      background: #f2f2f2;
+    }
+
+
+    .loading {
+      padding: 16px;
+      border-radius: 12px;
+      background: #f0f0f0;
+      color: #666;
+    }
+
+
+    .error {
+      padding: 16px;
+      border-radius: 12px;
+      background: #ffecec;
+      color: #a00;
+    }
+
+
+    .resultado {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+
+    .resultado-titulo {
+      font-size: 22px;
+      font-weight: bold;
+      line-height: 1.3;
+    }
+
+
+    .resultado-bloco {
+      padding: 16px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fafafa;
+    }
+
+
+    .resultado-label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #777;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+
+    .resultado-texto {
+      font-size: 17px;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+
+    .botao-video {
+      width: 100%;
+      min-height: 55px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 12px;
+      background: #222;
+      color: #fff;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+
+    .botao-video:hover {
+      background: #444;
+    }
+
+
+    .botao-reiniciar {
+      width: 100%;
+      min-height: 55px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 12px;
+      background: #222;
+      color: #fff;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+
+    .botao-reiniciar:hover {
+      background: #444;
+    }
+
+  </style>
+
 </head>
+
 
 <body>
 
-  <h1>Amorim Motorização</h1>
+  <div class="app">
+
+    <h1>Amorim Motorização</h1>
+
+    <div
+      id="status"
+      class="status"
+    >
+      Conectando à base de conhecimento...
+    </div>
+
+    <div id="conteudo"></div>
+
+  </div>
+
 
   <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js");
+
+
+    /* =====================================================
+       URL DO WEB APP
+    ===================================================== */
+
+    const URL_API =
+      "https://script.google.com/macros/s/AKfycbz8P23T3_yuIUCIICEw9lZ3msR9MrbtXCEkAE5tfHmJcDVLjRS5Xt0XEW73hzOETnz1Fw/exec";
+
+
+    /* =====================================================
+       ELEMENTOS DA TELA
+    ===================================================== */
+
+    const status =
+      document.getElementById("status");
+
+    const conteudo =
+      document.getElementById("conteudo");
+
+
+    /* =====================================================
+       ESTADO DO ATENDIMENTO
+    ===================================================== */
+
+    window.motorSelecionado = null;
+
+    window.controleSelecionado = null;
+
+    window.problemaSelecionado = null;
+
+
+    /* =====================================================
+       CHAMADA PARA O APPS SCRIPT
+    ===================================================== */
+
+    async function chamarAPI(dados) {
+
+      const resposta =
+        await fetch(
+          URL_API,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "text/plain"
+            },
+
+            body: JSON.stringify(dados)
+          }
+        );
+
+
+      return await resposta.json();
+
     }
+
+
+    /* =====================================================
+       LISTAR MOTORES
+    ===================================================== */
+
+    async function listarMotores() {
+
+      status.textContent =
+        "Carregando motores...";
+
+      conteudo.innerHTML =
+        '<div class="loading">Carregando motores...</div>';
+
+
+      try {
+
+        const resultado =
+          await chamarAPI({
+            acao: "listarMotores"
+          });
+
+
+        console.log(
+          "Resposta dos motores:",
+          resultado
+        );
+
+
+        if (!resultado.sucesso) {
+
+          throw new Error(
+            resultado.erro ||
+            "Não foi possível carregar os motores."
+          );
+
+        }
+
+
+        apresentarMotores(
+          resultado.motores
+        );
+
+
+      } catch (erro) {
+
+        console.error(erro);
+
+        status.textContent =
+          "Erro ao conectar à base.";
+
+        conteudo.innerHTML =
+          '<div class="error">' +
+          erro.message +
+          '</div>';
+
+      }
+
+    }
+
+
+    /* =====================================================
+       APRESENTAR MOTORES
+    ===================================================== */
+
+    function apresentarMotores(motores) {
+
+      status.textContent =
+        "Selecione o motor:";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const question =
+        document.createElement("div");
+
+      question.className =
+        "question";
+
+      question.textContent =
+        "Qual motor está sendo utilizado?";
+
+
+      conteudo.appendChild(
+        question
+      );
+
+
+      const choices =
+        document.createElement("div");
+
+      choices.className =
+        "choices";
+
+
+      motores.forEach(
+        function(motor) {
+
+          const button =
+            document.createElement("button");
+
+          button.className =
+            "choice";
+
+          button.textContent =
+            motor.caracteristica ||
+            "Motor";
+
+
+          button.addEventListener(
+            "click",
+            async function() {
+
+              console.log(
+                "Motor selecionado:",
+                motor
+              );
+
+
+              window.motorSelecionado =
+                motor;
+
+
+              status.textContent =
+                "Carregando controles...";
+
+              conteudo.innerHTML =
+                '<div class="loading">Carregando controles...</div>';
+
+
+              try {
+
+                const resultado =
+                  await chamarAPI({
+                    acao: "listarControles",
+                    motorId: motor.id
+                  });
+
+
+                console.log(
+                  "Resposta dos controles:",
+                  resultado
+                );
+
+
+                if (!resultado.sucesso) {
+
+                  throw new Error(
+                    resultado.erro ||
+                    "Não foi possível carregar os controles."
+                  );
+
+                }
+
+
+                apresentarControles(
+                  resultado.controles
+                );
+
+
+              } catch (erro) {
+
+                console.error(erro);
+
+                status.textContent =
+                  "Erro ao carregar os controles.";
+
+                conteudo.innerHTML =
+                  '<div class="error">' +
+                  erro.message +
+                  '</div>';
+
+              }
+
+            }
+          );
+
+
+          choices.appendChild(
+            button
+          );
+
+        }
+      );
+
+
+      conteudo.appendChild(
+        choices
+      );
+
+    }
+
+
+    /* =====================================================
+       APRESENTAR CONTROLES
+    ===================================================== */
+
+    function apresentarControles(controles) {
+
+      status.textContent =
+        "Selecione o controle:";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const question =
+        document.createElement("div");
+
+      question.className =
+        "question";
+
+      question.textContent =
+        "Qual controle está sendo utilizado?";
+
+
+      conteudo.appendChild(
+        question
+      );
+
+
+      const choices =
+        document.createElement("div");
+
+      choices.className =
+        "choices";
+
+
+      controles.forEach(
+        function(controle) {
+
+          const button =
+            document.createElement("button");
+
+          button.className =
+            "choice";
+
+          button.textContent =
+            controle.caracteristica ||
+            "Controle";
+
+
+          button.addEventListener(
+            "click",
+            async function() {
+
+              console.log(
+                "Controle selecionado:",
+                controle
+              );
+
+
+              window.controleSelecionado =
+                controle;
+
+
+              status.textContent =
+                "Carregando problemas...";
+
+              conteudo.innerHTML =
+                '<div class="loading">Carregando problemas...</div>';
+
+
+              try {
+
+                const resultado =
+                  await chamarAPI({
+
+                    acao:
+                      "listarProblemas",
+
+                    motorId:
+                      window.motorSelecionado.id,
+
+                    controleId:
+                      controle.id
+
+                  });
+
+
+                console.log(
+                  "Resposta dos problemas:",
+                  resultado
+                );
+
+
+                if (!resultado.sucesso) {
+
+                  throw new Error(
+                    resultado.erro ||
+                    "Não foi possível carregar os problemas."
+                  );
+
+                }
+
+
+                apresentarProblemas(
+                  resultado.problemas
+                );
+
+
+              } catch (erro) {
+
+                console.error(erro);
+
+                status.textContent =
+                  "Erro ao carregar os problemas.";
+
+                conteudo.innerHTML =
+                  '<div class="error">' +
+                  erro.message +
+                  '</div>';
+
+              }
+
+            }
+          );
+
+
+          choices.appendChild(
+            button
+          );
+
+        }
+      );
+
+
+      conteudo.appendChild(
+        choices
+      );
+
+    }
+
+
+    /* =====================================================
+       APRESENTAR PROBLEMAS
+    ===================================================== */
+
+    function apresentarProblemas(problemas) {
+
+      status.textContent =
+        "Selecione o problema:";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const question =
+        document.createElement("div");
+
+      question.className =
+        "question";
+
+      question.textContent =
+        "Qual problema está acontecendo?";
+
+
+      conteudo.appendChild(
+        question
+      );
+
+
+      const choices =
+        document.createElement("div");
+
+      choices.className =
+        "choices";
+
+
+      problemas.forEach(
+        function(problema) {
+
+          const button =
+            document.createElement("button");
+
+          button.className =
+            "choice";
+
+          button.textContent =
+            problema.situacao ||
+            "Problema";
+
+
+          button.addEventListener(
+            "click",
+            async function() {
+
+              console.log(
+                "Problema selecionado:",
+                problema
+              );
+
+
+              status.textContent =
+                "Carregando diagnóstico...";
+
+              conteudo.innerHTML =
+                '<div class="loading">Carregando diagnóstico...</div>';
+
+
+              try {
+
+                const resultado =
+                  await chamarAPI({
+
+                    acao:
+                      "buscarProblema",
+
+                    problemaId:
+                      problema.id,
+
+                    motorId:
+                      window.motorSelecionado.id,
+
+                    controleId:
+                      window.controleSelecionado.id
+
+                  });
+
+
+                console.log(
+                  "Resposta do problema:",
+                  resultado
+                );
+
+
+                if (!resultado.sucesso) {
+
+                  throw new Error(
+                    resultado.erro ||
+                    "Não foi possível carregar o diagnóstico."
+                  );
+
+                }
+
+
+                const dadosProblema =
+                  resultado.problema;
+
+
+                console.log(
+                  "Problema encontrado:",
+                  dadosProblema
+                );
+
+
+                window.problemaSelecionado =
+                  dadosProblema;
+
+
+                apresentarDiagnostico(
+                  dadosProblema
+                );
+
+
+              } catch (erro) {
+
+                console.error(erro);
+
+                status.textContent =
+                  "Erro ao carregar o diagnóstico.";
+
+                conteudo.innerHTML =
+                  '<div class="error">' +
+                  erro.message +
+                  '</div>';
+
+              }
+
+            }
+          );
+
+
+          choices.appendChild(
+            button
+          );
+
+        }
+      );
+
+
+      conteudo.appendChild(
+        choices
+      );
+
+    }
+
+
+    /* =====================================================
+       APRESENTAR PERGUNTA DE DIAGNÓSTICO
+    ===================================================== */
+
+    function apresentarDiagnostico(problema) {
+
+      status.textContent =
+        "Diagnóstico";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const question =
+        document.createElement("div");
+
+      question.className =
+        "question";
+
+      question.textContent =
+        problema.perguntasDiagnostico ||
+        "Não há pergunta de diagnóstico cadastrada.";
+
+
+      conteudo.appendChild(
+        question
+      );
+
+
+      const choices =
+        document.createElement("div");
+
+      choices.className =
+        "choices";
+
+
+      const botaoSim =
+        document.createElement("button");
+
+      botaoSim.className =
+        "choice";
+
+      botaoSim.textContent =
+        "Sim";
+
+
+      botaoSim.addEventListener(
+        "click",
+        function() {
+
+          enviarRespostaDiagnostico(
+            "SIM",
+            "diagnostico"
+          );
+
+        }
+      );
+
+
+      choices.appendChild(
+        botaoSim
+      );
+
+
+      const botaoNao =
+        document.createElement("button");
+
+      botaoNao.className =
+        "choice";
+
+      botaoNao.textContent =
+        "Não";
+
+
+      botaoNao.addEventListener(
+        "click",
+        function() {
+
+          enviarRespostaDiagnostico(
+            "NAO",
+            "diagnostico"
+          );
+
+        }
+      );
+
+
+      choices.appendChild(
+        botaoNao
+      );
+
+
+      conteudo.appendChild(
+        choices
+      );
+
+    }
+
+
+    /* =====================================================
+       ENVIAR RESPOSTA DO DIAGNÓSTICO
+    ===================================================== */
+
+    async function enviarRespostaDiagnostico(
+      resposta,
+      etapa
+    ) {
+
+      const problema =
+        window.problemaSelecionado;
+
+
+      if (!problema) {
+
+        console.error(
+          "Nenhum problema selecionado."
+        );
+
+        return;
+
+      }
+
+
+      status.textContent =
+        "Processando resposta...";
+
+      conteudo.innerHTML =
+        '<div class="loading">Processando resposta...</div>';
+
+
+      try {
+
+        const resultado =
+          await chamarAPI({
+
+            acao:
+              "responderDiagnostico",
+
+            problemaId:
+              problema.id,
+
+            resposta:
+              resposta,
+
+            motorId:
+              window.motorSelecionado.id,
+
+            controleId:
+              window.controleSelecionado.id,
+
+            etapa:
+              etapa
+
+          });
+
+
+        console.log(
+          "Resposta do diagnóstico:",
+          resultado
+        );
+
+
+        if (!resultado.sucesso) {
+
+          throw new Error(
+            resultado.erro ||
+            "Não foi possível processar a resposta."
+          );
+
+        }
+
+
+        processarResultadoDiagnostico(
+          resultado
+        );
+
+
+      } catch (erro) {
+
+        console.error(erro);
+
+        status.textContent =
+          "Erro ao processar o diagnóstico.";
+
+        conteudo.innerHTML =
+          '<div class="error">' +
+          erro.message +
+          '</div>';
+
+      }
+
+    }
+
+
+    /* =====================================================
+       PROCESSAR RESULTADO DO DIAGNÓSTICO
+    ===================================================== */
+
+    function processarResultadoDiagnostico(
+      resultado
+    ) {
+
+      console.log(
+        "Processando fluxo:",
+        resultado
+      );
+
+
+      if (
+        resultado.tipo === "problema" &&
+        resultado.problema
+      ) {
+
+        window.problemaSelecionado =
+          resultado.problema;
+
+
+        apresentarDiagnostico(
+          resultado.problema
+        );
+
+
+        return;
+
+      }
+
+
+      if (
+        resultado.tipo === "confirmacao"
+      ) {
+
+        apresentarConfirmacao(
+          resultado
+        );
+
+
+        return;
+
+      }
+
+
+      if (
+        resultado.tipo === "procedimento"
+      ) {
+
+        apresentarProcedimento(
+          resultado.procedimento
+        );
+
+
+        return;
+
+      }
+
+
+      if (
+        resultado.tipo === "fim"
+      ) {
+
+        apresentarFim(
+          resultado.mensagem
+        );
+
+
+        return;
+
+      }
+
+
+      if (
+        resultado.tipo === "escalar"
+      ) {
+
+        apresentarFim(
+          resultado.mensagem
+        );
+
+
+        return;
+
+      }
+
+
+      throw new Error(
+        "Tipo de resultado não reconhecido."
+      );
+
+    }
+
+
+    /* =====================================================
+       APRESENTAR CONFIRMAÇÃO
+    ===================================================== */
+
+    function apresentarConfirmacao(
+      resultado
+    ) {
+
+      status.textContent =
+        "Procedimento";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "resultado";
+
+
+      if (
+        resultado.acao
+      ) {
+
+        const blocoAcao =
+          document.createElement("div");
+
+        blocoAcao.className =
+          "resultado-bloco";
+
+
+        const labelAcao =
+          document.createElement("div");
+
+        labelAcao.className =
+          "resultado-label";
+
+        labelAcao.textContent =
+          "Ação atual";
+
+
+        const textoAcao =
+          document.createElement("div");
+
+        textoAcao.className =
+          "resultado-texto";
+
+        textoAcao.textContent =
+          resultado.acao;
+
+
+        blocoAcao.appendChild(
+          labelAcao
+        );
+
+        blocoAcao.appendChild(
+          textoAcao
+        );
+
+
+        container.appendChild(
+          blocoAcao
+        );
+
+      }
+
+
+      if (
+        resultado.procedimento
+      ) {
+
+        const procedimento =
+          resultado.procedimento;
+
+
+        const blocoProcedimento =
+          document.createElement("div");
+
+        blocoProcedimento.className =
+          "resultado-bloco";
+
+
+        const labelProcedimento =
+          document.createElement("div");
+
+        labelProcedimento.className =
+          "resultado-label";
+
+        labelProcedimento.textContent =
+          "Procedimento";
+
+
+        blocoProcedimento.appendChild(
+          labelProcedimento
+        );
+
+
+        if (
+          procedimento.procedimento
+        ) {
+
+          adicionarTextoResultado(
+            blocoProcedimento,
+            procedimento.procedimento
+          );
+
+        }
+
+
+        if (
+          procedimento.passoAPasso
+        ) {
+
+          adicionarTextoResultado(
+            blocoProcedimento,
+            procedimento.passoAPasso
+          );
+
+        }
+
+
+        if (
+          procedimento.resultadoEsperado
+        ) {
+
+          adicionarTextoResultado(
+            blocoProcedimento,
+            "Resultado esperado:\n" +
+            procedimento.resultadoEsperado
+          );
+
+        }
+
+
+        /* ---------------------------------------------
+           BOTÃO DO VÍDEO
+        --------------------------------------------- */
+
+        adicionarBotaoVideo(
+          blocoProcedimento,
+          procedimento.linkVideo
+        );
+
+
+        container.appendChild(
+          blocoProcedimento
+        );
+
+      }
+
+
+      const pergunta =
+        document.createElement("div");
+
+      pergunta.className =
+        "question";
+
+      pergunta.textContent =
+        resultado.condicao ||
+        "O procedimento foi realizado?";
+
+
+      container.appendChild(
+        pergunta
+      );
+
+
+      const choices =
+        document.createElement("div");
+
+      choices.className =
+        "choices";
+
+
+      const botaoSim =
+        document.createElement("button");
+
+      botaoSim.className =
+        "choice";
+
+      botaoSim.textContent =
+        "Sim";
+
+
+      botaoSim.addEventListener(
+        "click",
+        function() {
+
+          enviarRespostaDiagnostico(
+            "SIM",
+            "confirmacao"
+          );
+
+        }
+      );
+
+
+      choices.appendChild(
+        botaoSim
+      );
+
+
+      const botaoNao =
+        document.createElement("button");
+
+      botaoNao.className =
+        "choice";
+
+      botaoNao.textContent =
+        "Não";
+
+
+      botaoNao.addEventListener(
+        "click",
+        function() {
+
+          enviarRespostaDiagnostico(
+            "NAO",
+            "confirmacao"
+          );
+
+        }
+      );
+
+
+      choices.appendChild(
+        botaoNao
+      );
+
+
+      container.appendChild(
+        choices
+      );
+
+
+      conteudo.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =====================================================
+       APRESENTAR PROCEDIMENTO
+    ===================================================== */
+
+    function apresentarProcedimento(
+      procedimento
+    ) {
+
+      status.textContent =
+        "Procedimento";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "resultado";
+
+
+      const titulo =
+        document.createElement("div");
+
+      titulo.className =
+        "resultado-titulo";
+
+      titulo.textContent =
+        procedimento.procedimento ||
+        "Procedimento";
+
+
+      container.appendChild(
+        titulo
+      );
+
+
+      if (
+        procedimento.passoAPasso
+      ) {
+
+        adicionarBlocoResultado(
+          container,
+          "Passo a passo",
+          procedimento.passoAPasso
+        );
+
+      }
+
+
+      if (
+        procedimento.resultadoEsperado
+      ) {
+
+        adicionarBlocoResultado(
+          container,
+          "Resultado esperado",
+          procedimento.resultadoEsperado
+        );
+
+      }
+
+
+      /* ---------------------------------------------
+         BOTÃO DO VÍDEO
+      --------------------------------------------- */
+
+      adicionarBotaoVideo(
+        container,
+        procedimento.linkVideo
+      );
+
+
+      conteudo.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =====================================================
+       BOTÃO PARA ABRIR VÍDEO
+    ===================================================== */
+
+    function adicionarBotaoVideo(
+      container,
+      linkVideo
+    ) {
+
+      if (!linkVideo) {
+        return;
+      }
+
+
+      const url =
+        String(linkVideo).trim();
+
+
+      if (!url) {
+        return;
+      }
+
+
+      const botaoVideo =
+        document.createElement("button");
+
+      botaoVideo.className =
+        "botao-video";
+
+      botaoVideo.textContent =
+        "▶ Assistir vídeo do procedimento";
+
+
+      botaoVideo.addEventListener(
+        "click",
+        function() {
+
+          window.open(
+            url,
+            "_blank",
+            "noopener,noreferrer"
+          );
+
+        }
+      );
+
+
+      container.appendChild(
+        botaoVideo
+      );
+
+    }
+
+
+    /* =====================================================
+       ADICIONAR BLOCO DE RESULTADO
+    ===================================================== */
+
+    function adicionarBlocoResultado(
+      container,
+      titulo,
+      texto
+    ) {
+
+      const bloco =
+        document.createElement("div");
+
+      bloco.className =
+        "resultado-bloco";
+
+
+      const label =
+        document.createElement("div");
+
+      label.className =
+        "resultado-label";
+
+      label.textContent =
+        titulo;
+
+
+      const conteudoTexto =
+        document.createElement("div");
+
+      conteudoTexto.className =
+        "resultado-texto";
+
+      conteudoTexto.textContent =
+        texto;
+
+
+      bloco.appendChild(
+        label
+      );
+
+      bloco.appendChild(
+        conteudoTexto
+      );
+
+
+      container.appendChild(
+        bloco
+      );
+
+    }
+
+
+    /* =====================================================
+       ADICIONAR TEXTO DENTRO DE BLOCO
+    ===================================================== */
+
+    function adicionarTextoResultado(
+      bloco,
+      texto
+    ) {
+
+      const elemento =
+        document.createElement("div");
+
+      elemento.className =
+        "resultado-texto";
+
+      elemento.textContent =
+        texto;
+
+
+      bloco.appendChild(
+        elemento
+      );
+
+    }
+
+
+    /* =====================================================
+       APRESENTAR FIM
+    ===================================================== */
+
+    function apresentarFim(
+      mensagem
+    ) {
+
+      status.textContent =
+        "Resultado";
+
+      conteudo.innerHTML =
+        "";
+
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "resultado";
+
+
+      const titulo =
+        document.createElement("div");
+
+      titulo.className =
+        "resultado-titulo";
+
+      titulo.textContent =
+        "Orientação técnica";
+
+
+      container.appendChild(
+        titulo
+      );
+
+
+      const texto =
+        document.createElement("div");
+
+      texto.className =
+        "resultado-texto";
+
+      texto.textContent =
+        mensagem ||
+        "Processo concluído.";
+
+
+      container.appendChild(
+        texto
+      );
+
+
+      const botaoReiniciar =
+        document.createElement("button");
+
+      botaoReiniciar.className =
+        "botao-reiniciar";
+
+      botaoReiniciar.textContent =
+        "Novo atendimento";
+
+
+      botaoReiniciar.addEventListener(
+        "click",
+        function() {
+
+          window.motorSelecionado =
+            null;
+
+          window.controleSelecionado =
+            null;
+
+          window.problemaSelecionado =
+            null;
+
+
+          listarMotores();
+
+        }
+      );
+
+
+      container.appendChild(
+        botaoReiniciar
+      );
+
+
+      conteudo.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =====================================================
+       INICIAR
+    ===================================================== */
+
+    listarMotores();
+
+
   </script>
 
 </body>
