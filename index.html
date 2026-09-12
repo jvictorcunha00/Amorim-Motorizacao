@@ -12,13 +12,11 @@
 
   <title>Amorim Motorização</title>
 
-
   <style>
 
     * {
       box-sizing: border-box;
     }
-
 
     body {
       margin: 0;
@@ -29,7 +27,6 @@
       justify-content: center;
     }
 
-
     .app {
       width: 100%;
       max-width: 700px;
@@ -38,19 +35,16 @@
       padding: 24px;
     }
 
-
     h1 {
       margin: 0 0 8px;
       font-size: 24px;
     }
-
 
     .status {
       color: #777;
       font-size: 14px;
       margin-bottom: 30px;
     }
-
 
     .question {
       font-size: 20px;
@@ -59,13 +53,11 @@
       line-height: 1.4;
     }
 
-
     .choices {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-
 
     .choice {
       width: 100%;
@@ -79,11 +71,9 @@
       cursor: pointer;
     }
 
-
     .choice:hover {
       background: #f2f2f2;
     }
-
 
     .loading {
       padding: 16px;
@@ -92,7 +82,6 @@
       color: #666;
     }
 
-
     .error {
       padding: 16px;
       border-radius: 12px;
@@ -100,13 +89,11 @@
       color: #a00;
     }
 
-
     .resultado {
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
-
 
     .resultado-titulo {
       font-size: 22px;
@@ -114,14 +101,12 @@
       line-height: 1.3;
     }
 
-
     .resultado-bloco {
       padding: 16px;
       border: 1px solid #ddd;
       border-radius: 12px;
       background: #fafafa;
     }
-
 
     .resultado-label {
       font-size: 14px;
@@ -131,13 +116,11 @@
       text-transform: uppercase;
     }
 
-
     .resultado-texto {
       font-size: 17px;
       line-height: 1.5;
       white-space: pre-line;
     }
-
 
     .botao-video {
       width: 100%;
@@ -152,11 +135,9 @@
       cursor: pointer;
     }
 
-
     .botao-video:hover {
       background: #444;
     }
-
 
     .botao-reiniciar {
       width: 100%;
@@ -170,11 +151,9 @@
       cursor: pointer;
     }
 
-
     .botao-reiniciar:hover {
       background: #444;
     }
-
 
     /* =========================
        INTRODUÇÃO
@@ -186,14 +165,12 @@
       gap: 16px;
     }
 
-
     .introducao-texto {
       font-size: 17px;
       line-height: 1.55;
       color: #333;
       white-space: pre-line;
     }
-
 
     .aviso-inicial {
       padding: 16px;
@@ -206,12 +183,10 @@
       line-height: 1.5;
     }
 
-
     .aviso-inicial strong {
       display: block;
       margin-bottom: 6px;
     }
-
 
     .campo-introducao {
       display: flex;
@@ -219,13 +194,11 @@
       gap: 8px;
     }
 
-
     .campo-introducao label {
       font-size: 14px;
       font-weight: bold;
       color: #555;
     }
-
 
     .campo-introducao input {
       width: 100%;
@@ -237,11 +210,9 @@
       outline: none;
     }
 
-
     .campo-introducao input:focus {
       border-color: #888;
     }
-
 
     .botao-continuar {
       width: 100%;
@@ -256,17 +227,14 @@
       cursor: pointer;
     }
 
-
     .botao-continuar:hover {
       background: #444;
     }
-
 
     .botao-continuar:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-
 
     /* =========================
        AVALIAÇÃO
@@ -278,13 +246,11 @@
       gap: 20px;
     }
 
-
     .avaliacao-texto {
       font-size: 17px;
       line-height: 1.55;
       color: #333;
     }
-
 
     .estrelas {
       display: flex;
@@ -292,7 +258,6 @@
       gap: 8px;
       padding: 8px 0;
     }
-
 
     .estrela {
       border: none;
@@ -305,16 +270,13 @@
       transition: transform 0.15s ease;
     }
 
-
     .estrela:hover {
       transform: scale(1.08);
     }
 
-
     .estrela.selecionada {
       color: #f5b301;
     }
-
 
     .avaliacao-nota {
       text-align: center;
@@ -323,20 +285,17 @@
       min-height: 20px;
     }
 
-
     .campo-feedback {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
-
     .campo-feedback label {
       font-size: 14px;
       font-weight: bold;
       color: #555;
     }
-
 
     .campo-feedback textarea {
       width: 100%;
@@ -351,16 +310,13 @@
       outline: none;
     }
 
-
     .campo-feedback textarea:focus {
       border-color: #888;
     }
 
-
     .campo-feedback textarea::placeholder {
       color: #999;
     }
-
 
     .botao-avaliacao {
       width: 100%;
@@ -375,17 +331,14 @@
       cursor: pointer;
     }
 
-
     .botao-avaliacao:hover {
       background: #444;
     }
-
 
     .botao-avaliacao:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-
 
     /* =========================
        FINALIZAÇÃO
@@ -398,11 +351,9 @@
       text-align: center;
     }
 
-
     .finalizacao-icone {
       font-size: 48px;
     }
-
 
     .finalizacao-texto {
       font-size: 17px;
@@ -413,7 +364,6 @@
   </style>
 
 </head>
-
 
 <body>
 
@@ -434,7 +384,6 @@
 
 
   <script>
-
 
     /* =====================================================
        URL DO WEB APP
@@ -520,10 +469,6 @@
         "introducao";
 
 
-      /* =========================
-         APRESENTAÇÃO
-      ========================= */
-
       const texto =
         document.createElement("div");
 
@@ -539,10 +484,6 @@
         texto
       );
 
-
-      /* =========================
-         AVISO
-      ========================= */
 
       const aviso =
         document.createElement("div");
@@ -563,10 +504,6 @@
         aviso
       );
 
-
-      /* =========================
-         NOME
-      ========================= */
 
       const campoNome =
         document.createElement("div");
@@ -612,10 +549,6 @@
       );
 
 
-      /* =========================
-         REVENDA
-      ========================= */
-
       const campoRevenda =
         document.createElement("div");
 
@@ -656,10 +589,6 @@
         campoRevenda
       );
 
-
-      /* =========================
-         BOTÃO
-      ========================= */
 
       const botao =
         document.createElement("button");
@@ -2060,10 +1989,6 @@
         "choices";
 
 
-      /* =========================
-         SIM — CONTINUAR
-      ========================= */
-
       const botaoSim =
         document.createElement("button");
 
@@ -2088,10 +2013,6 @@
         botaoSim
       );
 
-
-      /* =========================
-         NÃO — ENCERRAR
-      ========================= */
 
       const botaoNao =
         document.createElement("button");
@@ -2172,10 +2093,6 @@
         "choices";
 
 
-      /* =========================
-         MESMO MOTOR
-      ========================= */
-
       const botaoMesmoMotor =
         document.createElement("button");
 
@@ -2200,10 +2117,6 @@
         botaoMesmoMotor
       );
 
-
-      /* =========================
-         OUTRO MOTOR
-      ========================= */
 
       const botaoOutroMotor =
         document.createElement("button");
@@ -2385,10 +2298,6 @@
         "avaliacao";
 
 
-      /* =========================
-         TÍTULO
-      ========================= */
-
       const titulo =
         document.createElement("div");
 
@@ -2404,10 +2313,6 @@
       );
 
 
-      /* =========================
-         TEXTO
-      ========================= */
-
       const texto =
         document.createElement("div");
 
@@ -2422,10 +2327,6 @@
         texto
       );
 
-
-      /* =========================
-         ESTRELAS
-      ========================= */
 
       const estrelas =
         document.createElement("div");
@@ -2485,10 +2386,6 @@
       );
 
 
-      /* =========================
-         NOTA
-      ========================= */
-
       const nota =
         document.createElement("div");
 
@@ -2503,10 +2400,6 @@
         nota
       );
 
-
-      /* =========================
-         FEEDBACK
-      ========================= */
 
       const campoFeedback =
         document.createElement("div");
@@ -2546,10 +2439,6 @@
       );
 
 
-      /* =========================
-         BOTÃO ENVIAR
-      ========================= */
-
       const botaoEnviar =
         document.createElement("button");
 
@@ -2568,7 +2457,8 @@
         function() {
 
           finalizarAvaliacao(
-            textarea
+            textarea,
+            botaoEnviar
           );
 
         }
@@ -2674,10 +2564,15 @@
 
     /* =====================================================
        FINALIZAR AVALIAÇÃO
+       
+       ALTERADO:
+       Registra o atendimento no Apps Script
+       antes de apresentar a confirmação.
     ===================================================== */
 
-    function finalizarAvaliacao(
-      textarea
+    async function finalizarAvaliacao(
+      textarea,
+      botaoEnviar
     ) {
 
       if (
@@ -2698,6 +2593,35 @@
 
 
       console.log(
+        "Preparando registro do atendimento..."
+      );
+
+      console.log(
+        "Instalador:",
+        window.nomeInstalador
+      );
+
+      console.log(
+        "Revenda:",
+        window.revenda
+      );
+
+      console.log(
+        "Motor:",
+        window.motorSelecionado
+      );
+
+      console.log(
+        "Controle:",
+        window.controleSelecionado
+      );
+
+      console.log(
+        "Problema:",
+        window.problemaSelecionado
+      );
+
+      console.log(
         "Avaliação:",
         window.avaliacaoSelecionada
       );
@@ -2708,7 +2632,153 @@
       );
 
 
-      apresentarConfirmacaoAvaliacao();
+      /*
+       * Evita duplo envio da avaliação.
+       */
+
+      if (botaoEnviar) {
+
+        botaoEnviar.disabled =
+          true;
+
+        botaoEnviar.textContent =
+          "Registrando atendimento...";
+
+      }
+
+
+      status.textContent =
+        "Registrando atendimento...";
+
+      conteudo.innerHTML =
+        '<div class="loading">Registrando atendimento...</div>';
+
+
+      try {
+
+        /*
+         * ENVIO PARA O APPS SCRIPT
+         */
+
+        const resultado =
+          await chamarAPI({
+
+            acao:
+              "registrarAtendimento",
+
+            nomeInstalador:
+              window.nomeInstalador,
+
+            revenda:
+              window.revenda,
+
+            motorId:
+              window.motorSelecionado
+                ? window.motorSelecionado.id
+                : "",
+
+            controleId:
+              window.controleSelecionado
+                ? window.controleSelecionado.id
+                : "",
+
+            problemaId:
+              window.problemaSelecionado
+                ? window.problemaSelecionado.id
+                : "",
+
+            avaliacao:
+              window.avaliacaoSelecionada,
+
+            feedback:
+              window.feedback
+
+          });
+
+
+        console.log(
+          "Resposta do registro do atendimento:",
+          resultado
+        );
+
+
+        /*
+         * O Apps Script precisa retornar
+         * sucesso: true para confirmar a gravação.
+         */
+
+        if (
+          !resultado ||
+          !resultado.sucesso
+        ) {
+
+          throw new Error(
+            resultado.erro ||
+            "Não foi possível registrar o atendimento na planilha."
+          );
+
+        }
+
+
+        console.log(
+          "Atendimento registrado com sucesso."
+        );
+
+
+        apresentarConfirmacaoAvaliacao();
+
+
+      } catch (erro) {
+
+        console.error(
+          "Erro ao registrar atendimento:",
+          erro
+        );
+
+
+        status.textContent =
+          "Erro ao registrar atendimento.";
+
+
+        conteudo.innerHTML =
+          '<div class="error">' +
+          "Não foi possível registrar o atendimento. " +
+          "Tente novamente." +
+          '</div>';
+
+
+        /*
+         * Permite tentar novamente.
+         */
+
+        const botaoTentar =
+          document.createElement("button");
+
+        botaoTentar.className =
+          "botao-avaliacao";
+
+        botaoTentar.textContent =
+          "Tentar novamente";
+
+
+        botaoTentar.addEventListener(
+          "click",
+          function() {
+
+            finalizarAvaliacao(
+              textarea,
+              botaoTentar
+            );
+
+          }
+        );
+
+
+        conteudo.appendChild(
+          botaoTentar
+        );
+
+      }
 
     }
 
@@ -2790,7 +2860,6 @@
     ===================================================== */
 
     apresentarIntroducao();
-
 
   </script>
 
