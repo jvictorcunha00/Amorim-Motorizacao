@@ -2916,7 +2916,7 @@
     }
 
 
-        /* =====================================================
+            /* =====================================================
        CONFIRMAR E-MAIL
     ===================================================== */
 
@@ -2927,14 +2927,6 @@
           window.location.search
         );
 
-
-      /*
-       * O Apps Script já processou o token.
-       *
-       * Agora o index.html apenas verifica
-       * qual resultado foi enviado na URL.
-       */
-
       const verificacao =
         parametros.get("verificacao");
 
@@ -2942,6 +2934,7 @@
       /*
        * USUÁRIO ENTROU NORMALMENTE NO APLICATIVO
        */
+
       if (!verificacao) {
 
         apresentarIntroducao();
@@ -2954,6 +2947,7 @@
       /*
        * CONFIRMAÇÃO REALIZADA COM SUCESSO
        */
+
       if (
         verificacao === "sucesso"
       ) {
@@ -2968,6 +2962,7 @@
       /*
        * CADASTRO JÁ ESTAVA ATIVO
        */
+
       if (
         verificacao === "ja-confirmado"
       ) {
@@ -2982,6 +2977,7 @@
       /*
        * ERRO NA CONFIRMAÇÃO
        */
+
       if (
         verificacao === "erro"
       ) {
@@ -2996,7 +2992,95 @@
       /*
        * QUALQUER VALOR DESCONHECIDO
        */
+
       apresentarErroVerificacao();
+
+    }
+
+
+    /* =====================================================
+       CONFIRMAÇÃO DE E-MAIL — SUCESSO
+    ===================================================== */
+
+    function apresentarConfirmacaoEmail() {
+
+      status.textContent =
+        "Cadastro ativado";
+
+
+      conteudo.innerHTML =
+        "";
+
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "verificacao";
+
+
+      const icone =
+        document.createElement("div");
+
+      icone.className =
+        "verificacao-icone";
+
+      icone.textContent =
+        "✓";
+
+      container.appendChild(
+        icone
+      );
+
+
+      const titulo =
+        document.createElement("div");
+
+      titulo.className =
+        "verificacao-titulo";
+
+      titulo.textContent =
+        "Cadastro ativado com sucesso!";
+
+      container.appendChild(
+        titulo
+      );
+
+
+      const texto =
+        document.createElement("div");
+
+      texto.className =
+        "verificacao-texto";
+
+      texto.textContent =
+        "Seu e-mail foi confirmado e seu cadastro está ativo. Você já pode voltar ao aplicativo e fazer login.";
+
+      container.appendChild(
+        texto
+      );
+
+
+      const botao =
+        document.createElement("a");
+
+      botao.className =
+        "verificacao-botao";
+
+      botao.href =
+        "https://jvictorcunha00.github.io/Amorim-Motorizacao/";
+
+      botao.textContent =
+        "Voltar ao Assistente Técnico";
+
+      container.appendChild(
+        botao
+      );
+
+
+      conteudo.appendChild(
+        container
+      );
 
     }
 
@@ -3071,8 +3155,7 @@
         "verificacao-botao";
 
       botao.href =
-        window.location.origin +
-        window.location.pathname;
+        "https://jvictorcunha00.github.io/Amorim-Motorizacao/";
 
       botao.textContent =
         "Voltar ao Assistente Técnico";
@@ -3087,6 +3170,95 @@
       );
 
     }
+
+
+    /* =====================================================
+       CONFIRMAÇÃO DE E-MAIL — ERRO
+    ===================================================== */
+
+    function apresentarErroVerificacao() {
+
+      status.textContent =
+        "Erro na confirmação";
+
+
+      conteudo.innerHTML =
+        "";
+
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "verificacao";
+
+
+      const icone =
+        document.createElement("div");
+
+      icone.className =
+        "verificacao-icone";
+
+      icone.textContent =
+        "×";
+
+      container.appendChild(
+        icone
+      );
+
+
+      const titulo =
+        document.createElement("div");
+
+      titulo.className =
+        "verificacao-titulo";
+
+      titulo.textContent =
+        "Não foi possível confirmar o cadastro.";
+
+      container.appendChild(
+        titulo
+      );
+
+
+      const texto =
+        document.createElement("div");
+
+      texto.className =
+        "verificacao-texto";
+
+      texto.textContent =
+        "O link pode ser inválido ou ter expirado. Solicite um novo e-mail de confirmação.";
+
+      container.appendChild(
+        texto
+      );
+
+
+      const botao =
+        document.createElement("a");
+
+      botao.className =
+        "verificacao-botao";
+
+      botao.href =
+        "https://jvictorcunha00.github.io/Amorim-Motorizacao/";
+
+      botao.textContent =
+        "Voltar ao Assistente Técnico";
+
+      container.appendChild(
+        botao
+      );
+
+
+      conteudo.appendChild(
+        container
+      );
+
+    }
+
+
     /* =====================================================
        INICIAR
     ===================================================== */
