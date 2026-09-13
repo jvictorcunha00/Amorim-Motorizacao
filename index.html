@@ -2947,11 +2947,20 @@
 
       try {
 
+        /*
+         * O Apps Script recebe o token pelo doGet.
+         *
+         * A resposta atual do backend é HTML.
+         * Por isso, analisamos o conteúdo retornado
+         * sem interferir no restante do aplicativo.
+         */
         const resposta =
           await fetch(
             URL_VERIFICACAO +
             "?verificar=" +
-            encodeURIComponent(token),
+            encodeURIComponent(token) +
+            "&t=" +
+            Date.now(),
             {
               method: "GET",
               cache: "no-store"
@@ -2973,44 +2982,61 @@
         }
 
         /*
-         * O doGet atual pode retornar HTML ou JSON.
-         * Primeiro tentamos interpretar como JSON.
+         * Normaliza a resposta para facilitar
+         * a identificação das mensagens do doGet.
          */
-        let dados = null;
+        const respostaNormalizada =
+          textoResposta
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
 
-        try {
-          dados =
-            JSON.parse(textoResposta);
-        } catch (e) {
-          dados = null;
+        /*
+         * ERRO
+         *
+         * O doGet atual retorna essas mensagens
+         * quando o token não é válido, expirou
+         * ou já não existe.
+         */
+        const possuiErro =
+          respostaNormalizada.includes(
+            "link de confirmacao invalido"
+          ) ||
+          respostaNormalizada.includes(
+            "link de confirmacao expirou"
+          ) ||
+          respostaNormalizada.includes(
+            "token de verificacao nao informado"
+          ) ||
+          respostaNormalizada.includes(
+            "nao foi possivel confirmar"
+          );
+
+        if (possuiErro) {
+          apresentarErroVerificacao();
+          return;
         }
 
-        let confirmado = false;
+        /*
+         * SUCESSO
+         *
+         * O doGet atual retorna:
+         * "Cadastro ativado com sucesso!"
+         * e/ou
+         * "Seu e-mail foi confirmado..."
+         */
+        const possuiSucesso =
+          respostaNormalizada.includes(
+            "cadastro ativado com sucesso"
+          ) ||
+          respostaNormalizada.includes(
+            "seu e-mail foi confirmado"
+          ) ||
+          respostaNormalizada.includes(
+            "cadastro esta ativo"
+          );
 
-        if (dados) {
-
-          confirmado =
-            dados.sucesso === true ||
-            dados.confirmado === true ||
-            dados.status === "ATIVO";
-
-        } else {
-
-          const respostaNormalizada =
-            textoResposta
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .toLowerCase();
-
-          confirmado =
-            respostaNormalizada.includes("confirmado") ||
-            respostaNormalizada.includes("cadastro ativo") ||
-            respostaNormalizada.includes("email confirmado") ||
-            respostaNormalizada.includes("e-mail confirmado");
-
-        }
-
-        if (!confirmado) {
+        if (!possuiSucesso) {
           apresentarErroVerificacao();
           return;
         }
