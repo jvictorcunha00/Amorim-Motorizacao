@@ -2916,84 +2916,117 @@
     }
 
 
-            /* =====================================================
+    /* =====================================================
        CONFIRMAR E-MAIL
     ===================================================== */
 
-    function verificarEmail() {
+    async function verificarEmail() {
 
       const parametros =
         new URLSearchParams(
           window.location.search
         );
 
-      const verificacao =
-        parametros.get("verificacao");
-
+      const token =
+        parametros.get("verificar");
 
       /*
-       * USUÁRIO ENTROU NORMALMENTE NO APLICATIVO
+       * Se não existe token, o usuário entrou
+       * normalmente no aplicativo.
        */
-
-      if (!verificacao) {
-
+      if (!token) {
         apresentarIntroducao();
-
         return;
-
       }
 
+      status.textContent =
+        "Confirmando cadastro...";
 
-      /*
-       * CONFIRMAÇÃO REALIZADA COM SUCESSO
-       */
+      conteudo.innerHTML =
+        '<div class="loading">Confirmando seu e-mail...</div>';
 
-      if (
-        verificacao === "sucesso"
-      ) {
+      try {
+
+        const resposta =
+          await fetch(
+            URL_VERIFICACAO +
+            "?verificar=" +
+            encodeURIComponent(token),
+            {
+              method: "GET",
+              cache: "no-store"
+            }
+          );
+
+        const textoResposta =
+          await resposta.text();
+
+        console.log(
+          "Resposta da confirmação:",
+          textoResposta
+        );
+
+        if (!resposta.ok) {
+          throw new Error(
+            "Não foi possível confirmar o cadastro."
+          );
+        }
+
+        /*
+         * O doGet atual pode retornar HTML ou JSON.
+         * Primeiro tentamos interpretar como JSON.
+         */
+        let dados = null;
+
+        try {
+          dados =
+            JSON.parse(textoResposta);
+        } catch (e) {
+          dados = null;
+        }
+
+        let confirmado = false;
+
+        if (dados) {
+
+          confirmado =
+            dados.sucesso === true ||
+            dados.confirmado === true ||
+            dados.status === "ATIVO";
+
+        } else {
+
+          const respostaNormalizada =
+            textoResposta
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .toLowerCase();
+
+          confirmado =
+            respostaNormalizada.includes("confirmado") ||
+            respostaNormalizada.includes("cadastro ativo") ||
+            respostaNormalizada.includes("email confirmado") ||
+            respostaNormalizada.includes("e-mail confirmado");
+
+        }
+
+        if (!confirmado) {
+          apresentarErroVerificacao();
+          return;
+        }
 
         apresentarConfirmacaoEmail();
 
-        return;
+      } catch (erro) {
 
-      }
-
-
-      /*
-       * CADASTRO JÁ ESTAVA ATIVO
-       */
-
-      if (
-        verificacao === "ja-confirmado"
-      ) {
-
-        apresentarEmailJaConfirmado();
-
-        return;
-
-      }
-
-
-      /*
-       * ERRO NA CONFIRMAÇÃO
-       */
-
-      if (
-        verificacao === "erro"
-      ) {
+        console.error(
+          "ERRO NA CONFIRMAÇÃO:",
+          erro
+        );
 
         apresentarErroVerificacao();
 
-        return;
-
       }
-
-
-      /*
-       * QUALQUER VALOR DESCONHECIDO
-       */
-
-      apresentarErroVerificacao();
 
     }
 
@@ -3005,19 +3038,16 @@
     function apresentarConfirmacaoEmail() {
 
       status.textContent =
-        "Cadastro ativado";
-
+        "Cadastro ativo";
 
       conteudo.innerHTML =
         "";
-
 
       const container =
         document.createElement("div");
 
       container.className =
         "verificacao";
-
 
       const icone =
         document.createElement("div");
@@ -3032,7 +3062,6 @@
         icone
       );
 
-
       const titulo =
         document.createElement("div");
 
@@ -3040,12 +3069,11 @@
         "verificacao-titulo";
 
       titulo.textContent =
-        "Cadastro ativado com sucesso!";
+        "Cadastro ativado!";
 
       container.appendChild(
         titulo
       );
-
 
       const texto =
         document.createElement("div");
@@ -3060,7 +3088,6 @@
         texto
       );
 
-
       const botao =
         document.createElement("a");
 
@@ -3068,7 +3095,8 @@
         "verificacao-botao";
 
       botao.href =
-        "https://jvictorcunha00.github.io/Amorim-Motorizacao/";
+        window.location.origin +
+        window.location.pathname;
 
       botao.textContent =
         "Voltar ao Assistente Técnico";
@@ -3076,94 +3104,6 @@
       container.appendChild(
         botao
       );
-
-
-      conteudo.appendChild(
-        container
-      );
-
-    }
-
-
-    /* =====================================================
-       CONFIRMAÇÃO DE E-MAIL — JÁ CONFIRMADO
-    ===================================================== */
-
-    function apresentarEmailJaConfirmado() {
-
-      status.textContent =
-        "Cadastro já ativo";
-
-
-      conteudo.innerHTML =
-        "";
-
-
-      const container =
-        document.createElement("div");
-
-      container.className =
-        "verificacao";
-
-
-      const icone =
-        document.createElement("div");
-
-      icone.className =
-        "verificacao-icone";
-
-      icone.textContent =
-        "✓";
-
-      container.appendChild(
-        icone
-      );
-
-
-      const titulo =
-        document.createElement("div");
-
-      titulo.className =
-        "verificacao-titulo";
-
-      titulo.textContent =
-        "Cadastro já confirmado!";
-
-      container.appendChild(
-        titulo
-      );
-
-
-      const texto =
-        document.createElement("div");
-
-      texto.className =
-        "verificacao-texto";
-
-      texto.textContent =
-        "Este cadastro já foi confirmado e está ativo. Você já pode voltar ao aplicativo e fazer login.";
-
-      container.appendChild(
-        texto
-      );
-
-
-      const botao =
-        document.createElement("a");
-
-      botao.className =
-        "verificacao-botao";
-
-      botao.href =
-        "https://jvictorcunha00.github.io/Amorim-Motorizacao/";
-
-      botao.textContent =
-        "Voltar ao Assistente Técnico";
-
-      container.appendChild(
-        botao
-      );
-
 
       conteudo.appendChild(
         container
@@ -3179,19 +3119,16 @@
     function apresentarErroVerificacao() {
 
       status.textContent =
-        "Erro na confirmação";
-
+        "Não foi possível confirmar";
 
       conteudo.innerHTML =
         "";
-
 
       const container =
         document.createElement("div");
 
       container.className =
         "verificacao";
-
 
       const icone =
         document.createElement("div");
@@ -3200,12 +3137,11 @@
         "verificacao-icone";
 
       icone.textContent =
-        "×";
+        "!";
 
       container.appendChild(
         icone
       );
-
 
       const titulo =
         document.createElement("div");
@@ -3214,12 +3150,11 @@
         "verificacao-titulo";
 
       titulo.textContent =
-        "Não foi possível confirmar o cadastro.";
+        "Link de confirmação inválido";
 
       container.appendChild(
         titulo
       );
-
 
       const texto =
         document.createElement("div");
@@ -3228,12 +3163,11 @@
         "verificacao-texto";
 
       texto.textContent =
-        "O link pode ser inválido ou ter expirado. Solicite um novo e-mail de confirmação.";
+        "O link pode ter expirado, já ter sido utilizado ou não ser válido. Solicite um novo link de confirmação se necessário.";
 
       container.appendChild(
         texto
       );
-
 
       const botao =
         document.createElement("a");
@@ -3242,7 +3176,8 @@
         "verificacao-botao";
 
       botao.href =
-        "https://jvictorcunha00.github.io/Amorim-Motorizacao/";
+        window.location.origin +
+        window.location.pathname;
 
       botao.textContent =
         "Voltar ao Assistente Técnico";
@@ -3250,7 +3185,6 @@
       container.appendChild(
         botao
       );
-
 
       conteudo.appendChild(
         container
