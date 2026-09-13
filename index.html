@@ -316,6 +316,41 @@
       display: block;
     }
 
+
+    .link-esqueci-senha {
+      display: inline-block;
+      margin-top: 8px;
+      color: #555;
+      font-size: 14px;
+      text-decoration: underline;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .link-esqueci-senha:hover {
+      color: #222;
+    }
+
+    .tela-recuperacao {
+      max-width: 520px;
+      margin: 30px auto 0;
+    }
+
+    .mensagem-recuperacao {
+      display: none;
+      color: #b00020;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .mensagem-recuperacao.visivel {
+      display: block;
+    }
+
+    .recuperacao-sucesso {
+      text-align: center;
+    }
     .campo-reenvio {
       display: flex;
       flex-direction: column;
@@ -982,6 +1017,14 @@
                 </button>
               </div>
 
+              <a
+                href="#"
+                class="link-esqueci-senha"
+                id="btnEsqueciSenha"
+              >
+                Esqueci minha senha
+              </a>
+
               <div
                 class="mensagem-login"
                 id="erroLogin"
@@ -1027,6 +1070,9 @@
 
       const botaoVoltar =
         document.getElementById("btnVoltarLogin");
+
+      const botaoEsqueci =
+        document.getElementById("btnEsqueciSenha");
 
       const botaoMostrarLoginSenha =
         document.getElementById("btnMostrarLoginSenha");
@@ -1110,6 +1156,16 @@
         }
       );
 
+      botaoEsqueci.addEventListener(
+        "click",
+        function(event) {
+
+          event.preventDefault();
+          apresentarRecuperacaoSenha();
+
+        }
+      );
+
       botaoVoltar.addEventListener(
         "click",
         function() {
@@ -1185,6 +1241,27 @@
               !resultado.sucesso
             ) {
 
+              if (
+                resultado &&
+                resultado.senhaAnterior
+              ) {
+
+                mostrarErro(
+                  gerarMensagemIdadeSenha(
+                    resultado.dataRedefinicao
+                  )
+                );
+
+                botaoLogin.disabled =
+                  false;
+
+                botaoLogin.textContent =
+                  "Entrar";
+
+                return;
+
+              }
+
               throw new Error(
                 (
                   resultado &&
@@ -1212,6 +1289,9 @@
             window.statusInstalador =
               resultado.status || "";
 
+            window.dataRedefinicaoSenha =
+              resultado.dataRedefinicao || "";
+
             apresentarIntroducao();
 
           } catch (erroLogin) {
@@ -1238,6 +1318,554 @@
       );
 
       email.focus();
+
+    }
+
+
+    function gerarMensagemIdadeSenha(dataRedefinicao) {
+
+      if (!dataRedefinicao) {
+        return "Esta senha foi substituída por uma nova senha.";
+      }
+
+      const data =
+        new Date(dataRedefinicao);
+
+      if (isNaN(data.getTime())) {
+        return "Esta senha foi substituída por uma nova senha.";
+      }
+
+      const agora =
+        new Date();
+
+      const dias =
+        Math.max(
+          0,
+          Math.floor(
+            (agora.getTime() - data.getTime()) /
+            (1000 * 60 * 60 * 24)
+          )
+        );
+
+      if (dias <= 30) {
+
+        return
+          "Esta senha foi substituída por uma nova senha. A senha foi redefinida há " +
+          dias +
+          (dias === 1 ? " dia." : " dias.");
+
+      }
+
+      const meses =
+        Math.max(
+          1,
+          Math.floor(dias / 30)
+        );
+
+      return
+        "Esta senha foi substituída por uma nova senha. A senha foi redefinida há " +
+        meses +
+        (meses === 1 ? " mês." : " meses.");
+
+    }
+
+
+    function apresentarRecuperacaoSenha() {
+
+      status.textContent =
+        "Recuperar senha";
+
+      conteudo.innerHTML = `
+        <div class="tela-recuperacao">
+
+          <div class="resultado-titulo">
+            Esqueci minha senha
+          </div>
+
+          <div class="introducao-texto">
+            Informe o e-mail cadastrado para receber o link de redefinição da sua senha.
+          </div>
+
+          <div class="campo-cadastro">
+
+            <label for="recuperacaoEmail">
+              E-mail
+            </label>
+
+            <input
+              type="email"
+              id="recuperacaoEmail"
+              placeholder="Digite seu e-mail cadastrado"
+              autocomplete="email"
+              required
+            >
+
+            <div
+              class="mensagem-recuperacao"
+              id="erroRecuperacao"
+            ></div>
+
+          </div>
+
+          <div class="login-acoes">
+
+            <button
+              type="button"
+              class="botao-continuar-cadastro"
+              id="btnSolicitarRecuperacao"
+            >
+              Enviar link de recuperação
+            </button>
+
+            <button
+              type="button"
+              class="botao-acesso secundario"
+              id="btnVoltarRecuperacao"
+            >
+              Voltar
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+      const email =
+        document.getElementById("recuperacaoEmail");
+
+      const erro =
+        document.getElementById("erroRecuperacao");
+
+      const botao =
+        document.getElementById("btnSolicitarRecuperacao");
+
+      const voltar =
+        document.getElementById("btnVoltarRecuperacao");
+
+      function mostrarErro(mensagem) {
+        erro.textContent = mensagem;
+        erro.classList.add("visivel");
+        email.classList.add("campo-invalido");
+      }
+
+      email.addEventListener("input", function() {
+        erro.textContent = "";
+        erro.classList.remove("visivel");
+        email.classList.remove("campo-invalido");
+      });
+
+      voltar.addEventListener("click", function() {
+        apresentarLogin();
+      });
+
+      botao.addEventListener("click", async function() {
+
+        const emailInformado =
+          email.value.trim().toLowerCase();
+
+        if (!emailInformado) {
+          mostrarErro("Informe seu e-mail cadastrado.");
+          email.focus();
+          return;
+        }
+
+        if (!/^[^\s@]+@(gmail|outlook|live|hotmail)\.com$/i.test(emailInformado)) {
+          mostrarErro("Insira um e-mail válido que termine com @gmail.com, @outlook.com, @live.com ou @hotmail.com.");
+          email.focus();
+          return;
+        }
+
+        botao.disabled = true;
+        botao.textContent = "Enviando...";
+
+        try {
+
+          const resultado =
+            await chamarAPI({
+              acao: "solicitarRecuperacaoSenha",
+              email: emailInformado
+            });
+
+          if (!resultado || !resultado.sucesso) {
+            throw new Error(
+              (resultado && resultado.erro) ||
+              "Não foi possível solicitar a recuperação da senha."
+            );
+          }
+
+          status.textContent = "Recuperação de senha";
+          conteudo.innerHTML = `
+            <div class="tela-recuperacao recuperacao-sucesso">
+              <div class="verificacao-icone">✓</div>
+              <div class="verificacao-titulo">
+                E-mail enviado!
+              </div>
+              <div class="verificacao-texto">
+                Enviamos um link para redefinição da sua senha para o e-mail informado.
+              </div>
+              <div class="verificacao-texto">
+                O link é válido por 1 hora e pode ser utilizado apenas uma vez.
+              </div>
+              <button
+                type="button"
+                class="verificacao-botao"
+                id="btnVoltarLoginRecuperacao"
+              >
+                Voltar para o login
+              </button>
+            </div>
+          `;
+
+          document
+            .getElementById("btnVoltarLoginRecuperacao")
+            .addEventListener("click", apresentarLogin);
+
+        } catch (erroRecuperacao) {
+
+          mostrarErro(
+            erroRecuperacao.message ||
+            "Não foi possível solicitar a recuperação da senha."
+          );
+
+          botao.disabled = false;
+          botao.textContent = "Enviar link de recuperação";
+
+        }
+
+      });
+
+      email.focus();
+
+    }
+
+
+    function apresentarRedefinicaoSenha(token) {
+
+      status.textContent =
+        "Redefinir senha";
+
+      conteudo.innerHTML =
+        '<div class="loading">Validando o link de recuperação...</div>';
+
+      chamarAPI({
+        acao: "validarTokenRecuperacao",
+        token: token
+      })
+      .then(function(resultado) {
+
+        if (!resultado || !resultado.sucesso) {
+          throw new Error(
+            (resultado && resultado.erro) ||
+            "Link de recuperação inválido ou expirado."
+          );
+        }
+
+        renderizarTelaRedefinicaoSenha(
+          token,
+          resultado
+        );
+
+      })
+      .catch(function(erro) {
+
+        status.textContent = "Recuperação de senha";
+        conteudo.innerHTML = `
+          <div class="verificacao">
+            <div class="verificacao-icone">!</div>
+            <div class="verificacao-titulo">
+              Não foi possível redefinir a senha
+            </div>
+            <div class="verificacao-texto">
+              ${erro.message || "Link inválido ou expirado."}
+            </div>
+            <button
+              type="button"
+              class="verificacao-botao"
+              id="btnVoltarLoginRecuperacaoErro"
+            >
+              Voltar para o login
+            </button>
+          </div>
+        `;
+
+        document
+          .getElementById("btnVoltarLoginRecuperacaoErro")
+          .addEventListener("click", apresentarLogin);
+
+      });
+
+    }
+
+
+    function renderizarTelaRedefinicaoSenha(token, dadosToken) {
+
+      conteudo.innerHTML = `
+        <div class="tela-recuperacao">
+
+          <div class="resultado-titulo">
+            Redefina sua senha
+          </div>
+
+          <div class="introducao-texto">
+            Crie uma nova senha para sua conta${dadosToken.primeiroNome ? ", " + dadosToken.primeiroNome : ""}.
+          </div>
+
+          <div class="campos-cadastro">
+
+            <div class="campo-cadastro" id="grupoNovaSenha">
+              <label for="novaSenha">
+                Nova senha
+              </label>
+
+              <div class="campo-senha">
+                <input
+                  type="password"
+                  id="novaSenha"
+                  placeholder="Digite sua nova senha"
+                  autocomplete="new-password"
+                  required
+                >
+
+                <button
+                  type="button"
+                  class="botao-visualizar-senha"
+                  id="btnMostrarNovaSenha"
+                  aria-label="Mostrar senha"
+                  title="Mostrar senha"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
+                </button>
+              </div>
+
+              <div class="mensagem-validacao" id="erroNovaSenha"></div>
+            </div>
+
+            <div class="campo-cadastro" id="grupoConfirmacaoNovaSenha">
+              <label for="confirmacaoNovaSenha">
+                Confirmação de senha
+              </label>
+
+              <div class="campo-senha">
+                <input
+                  type="password"
+                  id="confirmacaoNovaSenha"
+                  placeholder="Confirme sua nova senha"
+                  autocomplete="new-password"
+                  required
+                >
+
+                <button
+                  type="button"
+                  class="botao-visualizar-senha"
+                  id="btnMostrarConfirmacaoNovaSenha"
+                  aria-label="Mostrar confirmação de senha"
+                  title="Mostrar confirmação de senha"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
+                </button>
+              </div>
+
+              <div class="mensagem-validacao" id="erroConfirmacaoNovaSenha"></div>
+            </div>
+
+          </div>
+
+          <div class="introducao-texto">
+            A nova senha não pode ser igual à senha atual nem às duas últimas senhas utilizadas.
+          </div>
+
+          <div class="login-acoes">
+            <button
+              type="button"
+              class="botao-continuar-cadastro"
+              id="btnRedefinirSenha"
+            >
+              Redefinir senha
+            </button>
+
+            <button
+              type="button"
+              class="botao-acesso secundario"
+              id="btnVoltarLoginRedefinicao"
+            >
+              Voltar
+            </button>
+          </div>
+
+        </div>
+      `;
+
+      const novaSenha =
+        document.getElementById("novaSenha");
+
+      const confirmacao =
+        document.getElementById("confirmacaoNovaSenha");
+
+      const grupoNovaSenha =
+        document.getElementById("grupoNovaSenha");
+
+      const grupoConfirmacao =
+        document.getElementById("grupoConfirmacaoNovaSenha");
+
+      const erroNovaSenha =
+        document.getElementById("erroNovaSenha");
+
+      const erroConfirmacao =
+        document.getElementById("erroConfirmacaoNovaSenha");
+
+      const botao =
+        document.getElementById("btnRedefinirSenha");
+
+      document
+        .getElementById("btnVoltarLoginRedefinicao")
+        .addEventListener("click", apresentarLogin);
+
+      function configurarOlhoRedefinicao(botaoOlho, campo) {
+
+        botaoOlho.addEventListener("click", function() {
+
+          const mostrando =
+            campo.type === "text";
+
+          campo.type =
+            mostrando ? "password" : "text";
+
+          botaoOlho.innerHTML =
+            mostrando
+              ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>'
+              : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.9A11 11 0 0 1 12 5c6 0 9.5 7 9.5 7a16.3 16.3 0 0 1-3.1 3.7M6.4 6.4C3.9 8.1 2.5 12 2.5 12s3.5 7 9.5 7c1.5 0 2.8-.4 4-.9"/></svg>';
+
+          botaoOlho.setAttribute(
+            "aria-label",
+            mostrando ? "Mostrar senha" : "Ocultar senha"
+          );
+
+          botaoOlho.setAttribute(
+            "title",
+            mostrando ? "Mostrar senha" : "Ocultar senha"
+          );
+
+        });
+      }
+
+      configurarOlhoRedefinicao(
+        document.getElementById("btnMostrarNovaSenha"),
+        novaSenha
+      );
+
+      configurarOlhoRedefinicao(
+        document.getElementById("btnMostrarConfirmacaoNovaSenha"),
+        confirmacao
+      );
+
+      const regexSenhaRecuperacao =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+      function limparErros() {
+        grupoNovaSenha.classList.remove("tem-erro");
+        grupoConfirmacao.classList.remove("tem-erro");
+        novaSenha.classList.remove("campo-invalido");
+        confirmacao.classList.remove("campo-invalido");
+        erroNovaSenha.textContent = "";
+        erroConfirmacao.textContent = "";
+      }
+
+      novaSenha.addEventListener("input", limparErros);
+      confirmacao.addEventListener("input", limparErros);
+
+      botao.addEventListener("click", async function() {
+
+        limparErros();
+
+        const senha = novaSenha.value;
+        const senhaConfirmada = confirmacao.value;
+
+        if (!regexSenhaRecuperacao.test(senha)) {
+          grupoNovaSenha.classList.add("tem-erro");
+          novaSenha.classList.add("campo-invalido");
+          erroNovaSenha.textContent =
+            "A senha deve conter pelo menos 8 caracteres, 1 letra maiúscula, 1 letra minúscula, 1 número e 1 caractere especial.";
+          novaSenha.focus();
+          return;
+        }
+
+        if (senha !== senhaConfirmada) {
+          grupoConfirmacao.classList.add("tem-erro");
+          confirmacao.classList.add("campo-invalido");
+          erroConfirmacao.textContent =
+            "A confirmação da senha não corresponde.";
+          confirmacao.focus();
+          return;
+        }
+
+        botao.disabled = true;
+        botao.textContent = "Atualizando...";
+
+        try {
+
+          const resultado =
+            await chamarAPI({
+              acao: "redefinirSenha",
+              token: token,
+              senha: senha,
+              confirmacaoSenha: senhaConfirmada
+            });
+
+          if (!resultado || !resultado.sucesso) {
+            throw new Error(
+              (resultado && resultado.erro) ||
+              "Não foi possível redefinir a senha."
+            );
+          }
+
+          status.textContent = "Senha redefinida";
+
+          conteudo.innerHTML = `
+            <div class="verificacao">
+              <div class="verificacao-icone">✓</div>
+              <div class="verificacao-titulo">
+                Senha redefinida com sucesso!
+              </div>
+              <div class="verificacao-texto">
+                Sua senha foi atualizada. Você já pode entrar novamente no aplicativo.
+              </div>
+              <button
+                type="button"
+                class="verificacao-botao"
+                id="btnVoltarLoginSenhaRedefinida"
+              >
+                Ir para o login
+              </button>
+            </div>
+          `;
+
+          document
+            .getElementById("btnVoltarLoginSenhaRedefinida")
+            .addEventListener("click", apresentarLogin);
+
+        } catch (erro) {
+
+          if (erro.message && erro.message.indexOf("não pode ser igual") !== -1) {
+            grupoNovaSenha.classList.add("tem-erro");
+            novaSenha.classList.add("campo-invalido");
+            erroNovaSenha.textContent = erro.message;
+            novaSenha.focus();
+          } else {
+            grupoNovaSenha.classList.add("tem-erro");
+            novaSenha.classList.add("campo-invalido");
+            erroNovaSenha.textContent =
+              erro.message ||
+              "Não foi possível redefinir a senha.";
+          }
+
+          botao.disabled = false;
+          botao.textContent = "Redefinir senha";
+
+        }
+
+      });
+
+      novaSenha.focus();
 
     }
 
@@ -4721,68 +5349,43 @@
       const token =
         parametros.get("verificar");
 
+      const tokenRecuperacao =
+        parametros.get("recuperar");
+
       const resultado =
         parametros.get("verificacao");
 
 
-      /* -----------------------------------------------------
-         RESULTADO DA CONFIRMAÇÃO
-      ----------------------------------------------------- */
-
       if (resultado === "sucesso") {
-
         apresentarConfirmacaoEmail();
-
         return;
-
       }
-
 
       if (resultado === "ja-confirmado") {
-
         apresentarConfirmacaoEmail();
-
         return;
-
       }
-
 
       if (resultado === "erro") {
-
         apresentarErroVerificacao();
-
         return;
-
       }
 
-
-      /* -----------------------------------------------------
-         ACESSO NORMAL
-      ----------------------------------------------------- */
+      if (tokenRecuperacao) {
+        apresentarRedefinicaoSenha(tokenRecuperacao);
+        return;
+      }
 
       if (!token) {
-
         apresentarTelaInicial();
-
         return;
-
       }
-
-
-      /* -----------------------------------------------------
-         AGUARDA CONFIRMAÇÃO
-      ----------------------------------------------------- */
 
       status.textContent =
         "Confirmando cadastro...";
 
       conteudo.innerHTML =
         '<div class="loading">Confirmando seu e-mail...</div>';
-
-
-      /* -----------------------------------------------------
-         CALLBACK RECEBIDO DO APPS SCRIPT
-      ----------------------------------------------------- */
 
       window.receberConfirmacaoEmail =
         function(resultado) {
@@ -4792,38 +5395,26 @@
             resultado
           );
 
-
           if (
             resultado &&
             resultado.sucesso
           ) {
-
             apresentarConfirmacaoEmail();
-
             return;
-
           }
-
 
           apresentarErroVerificacao();
 
         };
 
-
-      /* -----------------------------------------------------
-         CONSULTA O APPS SCRIPT SEM REDIRECIONAR
-      ----------------------------------------------------- */
-
       const script =
         document.createElement("script");
-
 
       script.src =
         URL_VERIFICACAO +
         "?verificar=" +
         encodeURIComponent(token) +
         "&callback=receberConfirmacaoEmail";
-
 
       script.onerror =
         function() {
@@ -4836,12 +5427,12 @@
 
         };
 
-
       document.body.appendChild(
         script
       );
 
     }
+
     /* =====================================================
        CONFIRMAÇÃO DE E-MAIL — SUCESSO
     ===================================================== */
