@@ -38,6 +38,268 @@
     h1 {
       margin: 0 0 8px;
       font-size: 24px;
+      text-align: center;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #conteudo {
+      flex: 1;
+    }
+
+    .rodape {
+      margin-top: auto;
+      padding-top: 36px;
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .tela-inicial,
+    .tela-cadastro,
+    .tela-confirmacao-cadastro {
+      max-width: 520px;
+      margin: 30px auto 0;
+    }
+
+    .tela-inicial {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 58vh;
+    }
+
+    .tela-inicial-titulo {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .tela-inicial-subtitulo {
+      text-align: center;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #666;
+      margin-bottom: 28px;
+    }
+
+    .botoes-acesso {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .botao-acesso {
+      width: 100%;
+      min-height: 58px;
+      padding: 16px 20px;
+      border: none;
+      border-radius: 22px;
+      background: #222;
+      color: #fff;
+      font-size: 17px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .botao-acesso:hover {
+      background: #444;
+      transform: translateY(-1px);
+    }
+
+    .botao-acesso.secundario {
+      background: #f1f1f1;
+      color: #222;
+      border: 1px solid #ddd;
+    }
+
+    .botao-acesso.secundario:hover {
+      background: #e7e7e7;
+    }
+
+    .campos-cadastro {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .campo-cadastro {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .campo-cadastro label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .campo-cadastro input {
+      width: 100%;
+      min-height: 52px;
+      padding: 13px 14px;
+      border: 1px solid #ccc;
+      border-radius: 16px;
+      font-size: 16px;
+      outline: none;
+      background: #fff;
+    }
+
+    .campo-cadastro input:focus {
+      border-color: #888;
+    }
+
+    .campo-cadastro input.campo-invalido {
+      border-color: #d33;
+      background: rgba(220, 0, 0, 0.08);
+    }
+
+    .mensagem-validacao {
+      display: none;
+      color: #b00020;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .campo-cadastro.tem-erro .mensagem-validacao {
+      display: block;
+    }
+
+    .campo-senha {
+      position: relative;
+    }
+
+    .campo-senha input {
+      padding-right: 52px;
+    }
+
+    .botao-visualizar-senha {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      width: 40px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      font-size: 19px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .botao-visualizar-senha:hover {
+      background: #f0f0f0;
+    }
+
+    .botao-visualizar-senha svg {
+      width: 21px;
+      height: 21px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .termos-cadastro {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+      padding: 16px;
+      border-radius: 18px;
+      background: #f8f8f8;
+      border: 1px solid #e5e5e5;
+    }
+
+    .termo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #444;
+    }
+
+    .link-termos {
+      color: inherit;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+
+    .link-termos:hover {
+      opacity: 0.75;
+    }
+
+    .termo-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 2px 0 0;
+      flex-shrink: 0;
+    }
+
+    .botao-continuar-cadastro {
+      width: 100%;
+      min-height: 56px;
+      margin-top: 18px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 20px;
+      background: #222;
+      color: #fff;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .botao-continuar-cadastro:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .tela-confirmacao-cadastro {
+      text-align: center;
+    }
+
+    .confirmacao-titulo {
+      font-size: 23px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .confirmacao-texto {
+      font-size: 16px;
+      color: #555;
+      line-height: 1.55;
+      margin-bottom: 26px;
+    }
+
+    .confirmacao-acoes {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        padding: 20px 16px;
+      }
+
+      .tela-inicial {
+        min-height: 62vh;
+      }
     }
 
     .status {
@@ -433,6 +695,11 @@
 
     <div id="conteudo"></div>
 
+    <div class="rodape">
+      <div>Desenvolvido por: João Victor da Costa P. da Cunha</div>
+      <div>Contato: 21993943415</div>
+    </div>
+
   </div>
 
 
@@ -506,6 +773,579 @@
 
 
       return await resposta.json();
+
+    }
+
+
+    /* =====================================================
+       TELA INICIAL
+    ===================================================== */
+
+    function apresentarTelaInicial() {
+
+      status.textContent =
+        "Acesso";
+
+      conteudo.innerHTML = `
+        <div class="tela-inicial">
+
+          <div class="tela-inicial-titulo">
+            Bem-vindo à Amorim Motorização
+          </div>
+
+          <div class="tela-inicial-subtitulo">
+            Acesse sua conta ou crie seu cadastro para continuar.
+          </div>
+
+          <div class="botoes-acesso">
+
+            <button
+              type="button"
+              class="botao-acesso"
+              id="btnEntrar"
+            >
+              Entrar
+            </button>
+
+            <button
+              type="button"
+              class="botao-acesso secundario"
+              id="btnCadastro"
+            >
+              Cadastre-se
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+      document
+        .getElementById("btnEntrar")
+        .addEventListener(
+          "click",
+          function() {
+
+            alert(
+              "A tela de login será adicionada na próxima etapa."
+            );
+
+          }
+        );
+
+      document
+        .getElementById("btnCadastro")
+        .addEventListener(
+          "click",
+          function() {
+
+            apresentarCadastro();
+
+          }
+        );
+
+    }
+
+
+    /* =====================================================
+       CADASTRO — LAYOUT
+    ===================================================== */
+
+    function apresentarCadastro() {
+
+      status.textContent =
+        "Novo cadastro";
+
+      conteudo.innerHTML = `
+        <div class="tela-cadastro">
+
+          <div class="resultado-titulo">
+            Crie seu cadastro
+          </div>
+
+          <div class="introducao-texto">
+            Preencha seus dados para continuar.
+          </div>
+
+          <div class="campos-cadastro">
+
+            <div class="campo-cadastro" id="grupoPrimeiroNome">
+              <label for="cadastroPrimeiroNome">
+                Primeiro nome
+              </label>
+              <input
+                type="text"
+                id="cadastroPrimeiroNome"
+                placeholder="Digite seu primeiro nome"
+                autocomplete="given-name"
+                required
+              >
+              <div class="mensagem-validacao" id="erroPrimeiroNome"></div>
+            </div>
+
+            <div class="campo-cadastro" id="grupoSobrenome">
+              <label for="cadastroSobrenome">
+                Sobrenome Completo
+              </label>
+              <input
+                type="text"
+                id="cadastroSobrenome"
+                placeholder="Digite seu sobrenome completo"
+                autocomplete="family-name"
+                required
+              >
+              <div class="mensagem-validacao" id="erroSobrenome"></div>
+            </div>
+
+            <div class="campo-cadastro" id="grupoEmail">
+              <label for="cadastroEmail">
+                E-mail
+              </label>
+              <input
+                type="email"
+                id="cadastroEmail"
+                placeholder="Digite seu e-mail"
+                autocomplete="email"
+                required
+              >
+              <div class="mensagem-validacao" id="erroEmail"></div>
+            </div>
+
+            <div class="campo-cadastro" id="grupoContato">
+              <label for="cadastroContato">
+                Contato
+              </label>
+              <input
+                type="tel"
+                id="cadastroContato"
+                placeholder="(DDD) 9 9999-9999"
+                autocomplete="tel"
+                maxlength="16"
+                inputmode="numeric"
+                required
+              >
+              <div class="mensagem-validacao" id="erroContato"></div>
+            </div>
+
+            <div class="campo-cadastro" id="grupoSenha">
+              <label for="cadastroSenha">
+                Senha
+              </label>
+              <div class="campo-senha">
+                <input
+                  type="password"
+                  id="cadastroSenha"
+                  placeholder="Digite sua senha"
+                  autocomplete="new-password"
+                  required
+                >
+                <button
+                  type="button"
+                  class="botao-visualizar-senha"
+                  id="btnMostrarSenha"
+                  aria-label="Mostrar senha"
+                  title="Mostrar senha"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
+                </button>
+              </div>
+              <div class="mensagem-validacao" id="erroSenha"></div>
+            </div>
+
+            <div class="campo-cadastro" id="grupoConfirmacaoSenha">
+              <label for="cadastroConfirmacaoSenha">
+                Confirmação de senha
+              </label>
+              <div class="campo-senha">
+                <input
+                  type="password"
+                  id="cadastroConfirmacaoSenha"
+                  placeholder="Confirme sua senha"
+                  autocomplete="new-password"
+                  required
+                >
+                <button
+                  type="button"
+                  class="botao-visualizar-senha"
+                  id="btnMostrarConfirmacaoSenha"
+                  aria-label="Mostrar confirmação de senha"
+                  title="Mostrar confirmação de senha"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
+                </button>
+              </div>
+              <div class="mensagem-validacao" id="erroConfirmacaoSenha"></div>
+            </div>
+
+          </div>
+
+          <div class="termos-cadastro">
+
+            <label class="termo-item">
+              <input
+                type="checkbox"
+                id="checkTermos"
+              >
+              <span>
+                Confirmo que li e concordo com os <a href="#" class="link-termos" id="linkTermos">Termos e Condições</a>.
+              </span>
+            </label>
+
+            <label class="termo-item">
+              <input
+                type="checkbox"
+                id="checkDados"
+              >
+              <span>
+                Autorizo o acesso e tratamento das minhas informações pessoais para utilização do aplicativo.
+              </span>
+            </label>
+
+            <label class="termo-item">
+              <input
+                type="checkbox"
+                id="checkEmail"
+              >
+              <span>
+                Autorizo o envio de e-mails relacionados ao cadastro e ao funcionamento do aplicativo.
+              </span>
+            </label>
+
+          </div>
+
+          <button
+            type="button"
+            class="botao-continuar-cadastro"
+            id="btnContinuarCadastro"
+            disabled
+          >
+            Continuar
+          </button>
+
+        </div>
+      `;
+
+      const primeiroNome =
+        document.getElementById("cadastroPrimeiroNome");
+      const sobrenome =
+        document.getElementById("cadastroSobrenome");
+      const email =
+        document.getElementById("cadastroEmail");
+      const contato =
+        document.getElementById("cadastroContato");
+      const senha =
+        document.getElementById("cadastroSenha");
+      const confirmacaoSenha =
+        document.getElementById("cadastroConfirmacaoSenha");
+
+      const grupos = {
+        primeiroNome: document.getElementById("grupoPrimeiroNome"),
+        sobrenome: document.getElementById("grupoSobrenome"),
+        email: document.getElementById("grupoEmail"),
+        contato: document.getElementById("grupoContato"),
+        senha: document.getElementById("grupoSenha"),
+        confirmacaoSenha: document.getElementById("grupoConfirmacaoSenha")
+      };
+
+      const mensagens = {
+        primeiroNome: document.getElementById("erroPrimeiroNome"),
+        sobrenome: document.getElementById("erroSobrenome"),
+        email: document.getElementById("erroEmail"),
+        contato: document.getElementById("erroContato"),
+        senha: document.getElementById("erroSenha"),
+        confirmacaoSenha: document.getElementById("erroConfirmacaoSenha")
+      };
+
+      const camposCadastro = [
+        primeiroNome,
+        sobrenome,
+        email,
+        contato,
+        senha,
+        confirmacaoSenha
+      ];
+
+      const linkTermos = document.getElementById("linkTermos");
+
+      if (linkTermos) {
+        linkTermos.addEventListener("click", function(event) {
+          event.preventDefault();
+          alert("O link para os Termos e Condições será configurado posteriormente.");
+        });
+      }
+
+      const checkboxes = [
+        document.getElementById("checkTermos"),
+        document.getElementById("checkDados"),
+        document.getElementById("checkEmail")
+      ];
+
+      const botaoContinuar =
+        document.getElementById("btnContinuarCadastro");
+
+      const regexNome =
+        /^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:[ '-][A-Za-zÀ-ÖØ-öø-ÿ]+)*$/;
+      const regexEmail =
+        /^[^\s@]+@(gmail|outlook|live|hotmail)\.com$/i;
+      const regexSenha =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+      function formatarContato(valor) {
+        const numeros =
+          valor.replace(/\D/g, "").slice(0, 11);
+
+        if (!numeros) return "";
+        if (numeros.length <= 2) return "(" + numeros;
+        if (numeros.length <= 3) {
+          return "(" + numeros.slice(0, 2) + ") " + numeros.slice(2);
+        }
+        if (numeros.length <= 7) {
+          return "(" + numeros.slice(0, 2) + ") " + numeros.slice(2, 3) + " " + numeros.slice(3);
+        }
+        return "(" + numeros.slice(0, 2) + ") " + numeros.slice(2, 3) + " " + numeros.slice(3, 7) + "-" + numeros.slice(7, 11);
+      }
+
+      function definirValidacao(nome, valido, mensagem) {
+        const grupo = grupos[nome];
+        const campo = {
+          primeiroNome,
+          sobrenome,
+          email,
+          contato,
+          senha,
+          confirmacaoSenha
+        }[nome];
+        const elementoMensagem = mensagens[nome];
+
+        if (valido || campo.value.trim() === "") {
+          grupo.classList.remove("tem-erro");
+          campo.classList.remove("campo-invalido");
+          elementoMensagem.textContent = "";
+          return valido;
+        }
+
+        grupo.classList.add("tem-erro");
+        campo.classList.add("campo-invalido");
+        elementoMensagem.textContent = mensagem;
+        return false;
+      }
+
+      function validarNomeCampo(campo, nome, mensagem) {
+        const valor = campo.value.trim();
+        const valido = valor !== "" && regexNome.test(valor);
+        return definirValidacao(nome, valido, mensagem);
+      }
+
+      function validarEmail() {
+        const valor = email.value.trim();
+        const valido = valor !== "" && regexEmail.test(valor);
+        return definirValidacao(
+          "email",
+          valido,
+          "Insira um e-mail válido que termine com @gmail.com, @outlook.com, @live.com ou @hotmail.com."
+        );
+      }
+
+      function validarContato() {
+        const valido = contato.value.replace(/\D/g, "").length === 11;
+        return definirValidacao(
+          "contato",
+          valido,
+          "Insira um contato válido no formato (DDD) 9 9999-9999."
+        );
+      }
+
+      function validarSenha() {
+        const valido = senha.value !== "" && regexSenha.test(senha.value);
+        return definirValidacao(
+          "senha",
+          valido,
+          "A senha deve conter pelo menos 8 caracteres, 1 letra maiúscula, 1 letra minúscula, 1 número e 1 caractere especial. Caracteres especiais aceitos: ! @ # $ % & * . , ? _ - + ="
+        );
+      }
+
+      function validarConfirmacaoSenha() {
+        const valido =
+          confirmacaoSenha.value !== "" &&
+          confirmacaoSenha.value === senha.value;
+        return definirValidacao(
+          "confirmacaoSenha",
+          valido,
+          "A senha não corresponde com a senha digitada anteriormente."
+        );
+      }
+
+      function atualizarEstadoCadastro() {
+        const primeiroValido =
+          validarNomeCampo(
+            primeiroNome,
+            "primeiroNome",
+            "Insira apenas texto no primeiro nome. Acentos são permitidos."
+          );
+
+        const sobrenomeValido =
+          validarNomeCampo(
+            sobrenome,
+            "sobrenome",
+            "Insira apenas texto no sobrenome completo. Acentos são permitidos."
+          );
+
+        const emailValido = validarEmail();
+        const contatoValido = validarContato();
+        const senhaValida = validarSenha();
+        const confirmacaoValida = validarConfirmacaoSenha();
+
+        const todosMarcados =
+          checkboxes.every(function(checkbox) {
+            return checkbox.checked;
+          });
+
+        botaoContinuar.disabled = !(
+          primeiroValido &&
+          sobrenomeValido &&
+          emailValido &&
+          contatoValido &&
+          senhaValida &&
+          confirmacaoValida &&
+          todosMarcados
+        );
+      }
+
+      function configurarOlho(botao, campo) {
+        botao.addEventListener("click", function() {
+          const mostrando = campo.type === "text";
+          campo.type = mostrando ? "password" : "text";
+          botao.innerHTML = mostrando
+            ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>'
+            : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.9A11 11 0 0 1 12 5c6 0 9.5 7 9.5 7a16.3 16.3 0 0 1-3.1 3.7M6.4 6.4C3.9 8.1 2.5 12 2.5 12s3.5 7 9.5 7c1.5 0 2.8-.4 4-.9"/></svg>';
+          botao.setAttribute("aria-label", mostrando ? "Mostrar senha" : "Ocultar senha");
+          botao.setAttribute("title", mostrando ? "Mostrar senha" : "Ocultar senha");
+        });
+      }
+
+      configurarOlho(
+        document.getElementById("btnMostrarSenha"),
+        senha
+      );
+
+      configurarOlho(
+        document.getElementById("btnMostrarConfirmacaoSenha"),
+        confirmacaoSenha
+      );
+
+      contato.addEventListener("input", function() {
+        contato.value = formatarContato(contato.value);
+        atualizarEstadoCadastro();
+      });
+
+      camposCadastro.forEach(function(campo) {
+        if (campo !== contato) {
+          campo.addEventListener("input", atualizarEstadoCadastro);
+          campo.addEventListener("blur", atualizarEstadoCadastro);
+        }
+      });
+
+      checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", atualizarEstadoCadastro);
+      });
+
+      botaoContinuar.addEventListener("click", function() {
+        atualizarEstadoCadastro();
+
+        if (botaoContinuar.disabled) {
+          return;
+        }
+
+        apresentarConfirmacaoCadastro();
+      });
+
+      atualizarEstadoCadastro();
+    }
+
+
+    /* =====================================================
+       TELA 3 — CONFIRMAÇÃO DE E-MAIL
+    ===================================================== */
+
+    function apresentarConfirmacaoCadastro() {
+
+      status.textContent =
+        "Validação do cadastro";
+
+      conteudo.innerHTML = `
+        <div class="tela-confirmacao-cadastro">
+
+          <div class="confirmacao-titulo">
+            Quase tudo pronto!
+          </div>
+
+          <div class="confirmacao-texto">
+            Seu cadastro está pronto para a próxima etapa.
+            Envie o e-mail de confirmação para validar seu endereço eletrônico.
+          </div>
+
+          <div class="confirmacao-acoes">
+
+            <button
+              type="button"
+              class="botao-acesso"
+              id="btnEnviarEmailConfirmacao"
+            >
+              Enviar e-mail de confirmação
+            </button>
+
+            <button
+              type="button"
+              class="botao-acesso secundario"
+              id="btnVoltarCadastro"
+            >
+              Voltar ao cadastro
+            </button>
+
+          </div>
+
+          <div
+            id="mensagemEnvioConfirmacao"
+            class="confirmacao-texto"
+            style="display:none; margin-top:20px;"
+          >
+            E-mail de confirmação pronto para ser integrado na próxima etapa.
+          </div>
+
+        </div>
+      `;
+
+      document
+        .getElementById(
+          "btnEnviarEmailConfirmacao"
+        )
+        .addEventListener(
+          "click",
+          function() {
+
+            const mensagem =
+              document.getElementById(
+                "mensagemEnvioConfirmacao"
+              );
+
+            mensagem.style.display =
+              "block";
+
+          }
+        );
+
+      document
+        .getElementById(
+          "btnVoltarCadastro"
+        )
+        .addEventListener(
+          "click",
+          function() {
+
+            apresentarCadastro();
+
+          }
+        );
 
     }
 
@@ -2971,7 +3811,7 @@
 
       if (!token) {
 
-        apresentarIntroducao();
+        apresentarTelaInicial();
 
         return;
 
