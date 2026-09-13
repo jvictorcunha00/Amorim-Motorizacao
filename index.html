@@ -1256,6 +1256,14 @@
           return;
         }
 
+        window.dadosCadastro = {
+          primeiroNome: primeiroNome.value.trim(),
+          sobrenome: sobrenome.value.trim(),
+          email: email.value.trim().toLowerCase(),
+          contato: contato.value.replace(/\D/g, ""),
+          senha: senha.value
+        };
+
         apresentarConfirmacaoCadastro();
       });
 
@@ -1321,15 +1329,77 @@
         )
         .addEventListener(
           "click",
-          function() {
+          async function() {
+
+            const botao =
+              document.getElementById(
+                "btnEnviarEmailConfirmacao"
+              );
 
             const mensagem =
               document.getElementById(
                 "mensagemEnvioConfirmacao"
               );
 
+            if (!window.dadosCadastro) {
+              mensagem.textContent =
+                "Não foi possível localizar os dados do cadastro.";
+              mensagem.style.display =
+                "block";
+              return;
+            }
+
+            botao.disabled = true;
+            botao.textContent =
+              "Enviando...";
+
             mensagem.style.display =
               "block";
+            mensagem.textContent =
+              "Registrando cadastro e enviando e-mail de confirmação...";
+
+            try {
+
+              const resultado =
+                await chamarAPI({
+                  acao: "cadastrarInstalador",
+                  primeiroNome: window.dadosCadastro.primeiroNome,
+                  sobrenome: window.dadosCadastro.sobrenome,
+                  email: window.dadosCadastro.email,
+                  contato: window.dadosCadastro.contato,
+                  senha: window.dadosCadastro.senha
+                });
+
+              if (!resultado || !resultado.sucesso) {
+                throw new Error(
+                  (resultado && resultado.erro) ||
+                  "Não foi possível concluir o cadastro."
+                );
+              }
+
+              mensagem.textContent =
+                resultado.mensagem ||
+                "Cadastro realizado. O e-mail de confirmação foi enviado.";
+
+              botao.textContent =
+                "E-mail enviado";
+
+            } catch (erro) {
+
+              console.error(
+                "Erro ao cadastrar instalador:",
+                erro
+              );
+
+              mensagem.textContent =
+                erro.message ||
+                "Não foi possível concluir o cadastro.";
+
+              botao.disabled = false;
+              botao.textContent =
+                "Enviar e-mail de confirmação";
+
+            }
 
           }
         );
