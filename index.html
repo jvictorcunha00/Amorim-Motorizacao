@@ -292,6 +292,52 @@
       gap: 12px;
     }
 
+    .campo-reenvio {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .campo-reenvio label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .campo-reenvio input {
+      width: 100%;
+      min-height: 52px;
+      padding: 13px 14px;
+      border: 1px solid #ccc;
+      border-radius: 16px;
+      font-size: 16px;
+      outline: none;
+      background: #fff;
+    }
+
+    .campo-reenvio input:focus {
+      border-color: #888;
+    }
+
+    .campo-reenvio input.campo-invalido {
+      border-color: #d33;
+      background: rgba(220, 0, 0, 0.08);
+    }
+
+    .mensagem-reenvio {
+      display: none;
+      color: #b00020;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .campo-reenvio.tem-erro .mensagem-reenvio {
+      display: block;
+    }
+
     @media (max-width: 600px) {
       .app {
         padding: 20px 16px;
@@ -1249,22 +1295,107 @@
         checkbox.addEventListener("change", atualizarEstadoCadastro);
       });
 
-      botaoContinuar.addEventListener("click", function() {
+      botaoContinuar.addEventListener("click", async function() {
         atualizarEstadoCadastro();
 
         if (botaoContinuar.disabled) {
           return;
         }
 
-        window.dadosCadastro = {
-          primeiroNome: primeiroNome.value.trim(),
-          sobrenome: sobrenome.value.trim(),
-          email: email.value.trim().toLowerCase(),
-          contato: contato.value.replace(/\D/g, ""),
-          senha: senha.value
-        };
+        botaoContinuar.disabled =
+          true;
 
-        apresentarConfirmacaoCadastro();
+        botaoContinuar.textContent =
+          "Verificando...";
+
+        try {
+
+          const resultado =
+            await chamarAPI({
+              acao: "verificarDisponibilidadeCadastro",
+              email: email.value.trim().toLowerCase(),
+              contato: contato.value.replace(/\D/g, "")
+            });
+
+          if (!resultado || !resultado.sucesso) {
+            throw new Error(
+              (resultado && resultado.erro) ||
+              "Não foi possível verificar os dados do cadastro."
+            );
+          }
+
+          let encontrouErro =
+            false;
+
+          if (!resultado.emailDisponivel) {
+
+            definirValidacao(
+              "email",
+              false,
+              resultado.erroEmail ||
+              "Este e-mail já possui cadastro."
+            );
+
+            encontrouErro =
+              true;
+
+          }
+
+          if (!resultado.contatoDisponivel) {
+
+            definirValidacao(
+              "contato",
+              false,
+              resultado.erroContato ||
+              "Este contato já possui cadastro."
+            );
+
+            encontrouErro =
+              true;
+
+          }
+
+          if (encontrouErro) {
+            return;
+          }
+
+          window.dadosCadastro = {
+            primeiroNome: primeiroNome.value.trim(),
+            sobrenome: sobrenome.value.trim(),
+            email: email.value.trim().toLowerCase(),
+            contato: contato.value.replace(/\D/g, ""),
+            senha: senha.value
+          };
+
+          apresentarConfirmacaoCadastro();
+
+        } catch (erro) {
+
+          console.error(
+            "Erro ao verificar disponibilidade:",
+            erro
+          );
+
+          alert(
+            erro.message ||
+            "Não foi possível verificar os dados do cadastro."
+          );
+
+        } finally {
+
+          botaoContinuar.textContent =
+            "Continuar";
+
+          if (
+            !document.getElementById(
+              "btnContinuarCadastro"
+            )?.disabled
+          ) {
+            botaoContinuar.disabled =
+              false;
+          }
+
+        }
       });
 
       atualizarEstadoCadastro();
@@ -1305,9 +1436,10 @@
             <button
               type="button"
               class="botao-acesso secundario"
-              id="btnVoltarCadastro"
+              id="btnNaoRecebiEmail"
+              disabled
             >
-              Voltar ao cadastro
+              Não recebi o e-mail de confirmação (1:30)
             </button>
 
           </div>
@@ -1316,109 +1448,506 @@
             id="mensagemEnvioConfirmacao"
             class="confirmacao-texto"
             style="display:none; margin-top:20px;"
+          ></div>
+
+          <div
+            id="areaReenvioEmail"
+            style="display:none;"
           >
-            E-mail de confirmação pronto para ser integrado na próxima etapa.
+
+            <div class="confirmacao-texto">
+              Confira o endereço abaixo. Caso tenha digitado incorretamente,
+              corrija antes de solicitar o reenvio.
+            </div>
+
+            <div
+              class="campo-reenvio"
+              id="grupoReenvioEmail"
+            >
+              <label for="emailReenvio">
+                E-mail
+              </label>
+
+              <input
+                type="email"
+                id="emailReenvio"
+                autocomplete="email"
+                value=""
+              >
+
+              <div
+                class="mensagem-reenvio"
+                id="erroReenvioEmail"
+              ></div>
+            </div>
+
+            <div
+              class="confirmacao-acoes"
+              style="margin-top:14px;"
+            >
+              <button
+                type="button"
+                class="botao-acesso"
+                id="btnReenviarEmailConfirmacao"
+              >
+                Reenviar o e-mail de confirmação
+              </button>
+            </div>
+
           </div>
 
         </div>
       `;
 
-      document
-        .getElementById(
+      const botaoEnviar =
+        document.getElementById(
           "btnEnviarEmailConfirmacao"
-        )
-        .addEventListener(
-          "click",
-          async function() {
+        );
 
-            const botao =
-              document.getElementById(
-                "btnEnviarEmailConfirmacao"
+      const botaoNaoRecebi =
+        document.getElementById(
+          "btnNaoRecebiEmail"
+        );
+
+      const mensagem =
+        document.getElementById(
+          "mensagemEnvioConfirmacao"
+        );
+
+      const areaReenvio =
+        document.getElementById(
+          "areaReenvioEmail"
+        );
+
+      const emailReenvio =
+        document.getElementById(
+          "emailReenvio"
+        );
+
+      const grupoReenvioEmail =
+        document.getElementById(
+          "grupoReenvioEmail"
+        );
+
+      const erroReenvioEmail =
+        document.getElementById(
+          "erroReenvioEmail"
+        );
+
+      const botaoReenviar =
+        document.getElementById(
+          "btnReenviarEmailConfirmacao"
+        );
+
+
+      if (!window.dadosCadastro) {
+
+        mensagem.textContent =
+          "Não foi possível localizar os dados do cadastro.";
+
+        mensagem.style.display =
+          "block";
+
+        botaoEnviar.disabled =
+          true;
+
+        return;
+
+      }
+
+
+      emailReenvio.value =
+        window.dadosCadastro.email || "";
+
+
+      let intervaloContador =
+        null;
+
+
+      function iniciarContagemReenvio() {
+
+        let segundosRestantes =
+          90;
+
+        botaoNaoRecebi.disabled =
+          true;
+
+        botaoNaoRecebi.textContent =
+          "Não recebi o e-mail de confirmação (1:30)";
+
+
+        intervaloContador =
+          setInterval(function() {
+
+            segundosRestantes--;
+
+            const minutos =
+              Math.floor(
+                segundosRestantes / 60
               );
 
-            const mensagem =
-              document.getElementById(
-                "mensagemEnvioConfirmacao"
+            const segundos =
+              segundosRestantes % 60;
+
+            botaoNaoRecebi.textContent =
+              "Não recebi o e-mail de confirmação (" +
+              minutos +
+              ":" +
+              String(segundos).padStart(2, "0") +
+              ")";
+
+
+            if (
+              segundosRestantes <= 0
+            ) {
+
+              clearInterval(
+                intervaloContador
               );
 
-            if (!window.dadosCadastro) {
-              mensagem.textContent =
-                "Não foi possível localizar os dados do cadastro.";
-              mensagem.style.display =
-                "block";
-              return;
+              intervaloContador =
+                null;
+
+              botaoNaoRecebi.disabled =
+                false;
+
+              botaoNaoRecebi.textContent =
+                "Não recebi o e-mail de confirmação";
+
             }
 
-            botao.disabled = true;
-            botao.textContent =
-              "Enviando...";
+          }, 1000);
+
+      }
+
+
+      function validarEmailReenvio() {
+
+        const valor =
+          emailReenvio.value
+            .trim()
+            .toLowerCase();
+
+        const valido =
+          valor !== "" &&
+          /^[^\s@]+@(gmail|outlook|live|hotmail)\.com$/i.test(
+            valor
+          );
+
+
+        if (valido) {
+
+          grupoReenvioEmail.classList.remove(
+            "tem-erro"
+          );
+
+          emailReenvio.classList.remove(
+            "campo-invalido"
+          );
+
+          erroReenvioEmail.textContent =
+            "";
+
+          return true;
+
+        }
+
+
+        grupoReenvioEmail.classList.add(
+          "tem-erro"
+        );
+
+        emailReenvio.classList.add(
+          "campo-invalido"
+        );
+
+        erroReenvioEmail.textContent =
+          "Insira um e-mail válido que termine com @gmail.com, @outlook.com, @live.com ou @hotmail.com.";
+
+        return false;
+
+      }
+
+
+      emailReenvio.addEventListener(
+        "input",
+        function() {
+
+          emailReenvio.value =
+            emailReenvio.value
+              .toLowerCase();
+
+          validarEmailReenvio();
+
+        }
+      );
+
+
+      botaoEnviar.addEventListener(
+        "click",
+        async function() {
+
+          if (!window.dadosCadastro) {
+
+            mensagem.textContent =
+              "Não foi possível localizar os dados do cadastro.";
 
             mensagem.style.display =
               "block";
-            mensagem.textContent =
-              "Registrando cadastro e enviando e-mail de confirmação...";
 
-            try {
+            return;
 
-              const resultado =
-                await chamarAPI({
-                  acao: "cadastrarInstalador",
-                  primeiroNome: window.dadosCadastro.primeiroNome,
-                  sobrenome: window.dadosCadastro.sobrenome,
-                  email: window.dadosCadastro.email,
-                  contato: window.dadosCadastro.contato,
-                  senha: window.dadosCadastro.senha
-                });
+          }
 
-              if (!resultado || !resultado.sucesso) {
-                throw new Error(
-                  (resultado && resultado.erro) ||
-                  "Não foi possível concluir o cadastro."
-                );
-              }
 
-              mensagem.textContent =
-                resultado.mensagem ||
-                "Cadastro realizado. O e-mail de confirmação foi enviado.";
+          botaoEnviar.disabled =
+            true;
 
-              botao.textContent =
-                "E-mail enviado";
+          botaoEnviar.textContent =
+            "Enviando...";
 
-            } catch (erro) {
+          mensagem.style.display =
+            "block";
 
-              console.error(
-                "Erro ao cadastrar instalador:",
-                erro
+          mensagem.textContent =
+            "Registrando cadastro e enviando e-mail de confirmação.";
+
+
+          try {
+
+            const resultado =
+              await chamarAPI({
+
+                acao:
+                  "cadastrarInstalador",
+
+                primeiroNome:
+                  window.dadosCadastro.primeiroNome,
+
+                sobrenome:
+                  window.dadosCadastro.sobrenome,
+
+                email:
+                  window.dadosCadastro.email,
+
+                contato:
+                  window.dadosCadastro.contato,
+
+                senha:
+                  window.dadosCadastro.senha
+
+              });
+
+
+            if (
+              !resultado ||
+              !resultado.sucesso
+            ) {
+
+              throw new Error(
+                (
+                  resultado &&
+                  resultado.erro
+                ) ||
+                "Não foi possível concluir o cadastro."
               );
-
-              mensagem.textContent =
-                erro.message ||
-                "Não foi possível concluir o cadastro.";
-
-              botao.disabled = false;
-              botao.textContent =
-                "Enviar e-mail de confirmação";
 
             }
 
+
+            window.dadosCadastro.id =
+              resultado.id;
+
+
+            mensagem.textContent =
+              resultado.mensagem ||
+              "Cadastro realizado. O e-mail de confirmação foi enviado.";
+
+            botaoEnviar.textContent =
+              "E-mail enviado";
+
+
+            iniciarContagemReenvio();
+
+
+          } catch (erro) {
+
+            console.error(
+              "Erro ao cadastrar instalador:",
+              erro
+            );
+
+
+            mensagem.textContent =
+              erro.message ||
+              "Não foi possível concluir o cadastro.";
+
+
+            botaoEnviar.disabled =
+              false;
+
+            botaoEnviar.textContent =
+              "Enviar e-mail de confirmação";
+
           }
-        );
 
-      document
-        .getElementById(
-          "btnVoltarCadastro"
-        )
-        .addEventListener(
-          "click",
-          function() {
+        }
+      );
 
-            apresentarCadastro();
+
+      botaoNaoRecebi.addEventListener(
+        "click",
+        function() {
+
+          areaReenvio.style.display =
+            "block";
+
+          emailReenvio.value =
+            window.dadosCadastro.email || "";
+
+          emailReenvio.focus();
+
+          botaoNaoRecebi.style.display =
+            "none";
+
+        }
+      );
+
+
+      botaoReenviar.addEventListener(
+        "click",
+        async function() {
+
+          if (
+            !window.dadosCadastro ||
+            !window.dadosCadastro.id
+          ) {
+
+            mensagem.textContent =
+              "Não foi possível identificar o cadastro para reenviar o e-mail.";
+
+            mensagem.style.display =
+              "block";
+
+            return;
 
           }
-        );
+
+
+          if (
+            !validarEmailReenvio()
+          ) {
+
+            emailReenvio.focus();
+
+            return;
+
+          }
+
+
+          const novoEmail =
+            emailReenvio.value
+              .trim()
+              .toLowerCase();
+
+
+          botaoReenviar.disabled =
+            true;
+
+          botaoReenviar.textContent =
+            "Enviando...";
+
+
+          mensagem.style.display =
+            "block";
+
+          mensagem.textContent =
+            "Atualizando o e-mail e enviando uma nova confirmação.";
+
+
+          try {
+
+            const resultado =
+              await chamarAPI({
+
+                acao:
+                  "reenviarEmailConfirmacao",
+
+                id:
+                  window.dadosCadastro.id,
+
+                email:
+                  novoEmail
+
+              });
+
+
+            if (
+              !resultado ||
+              !resultado.sucesso
+            ) {
+
+              throw new Error(
+                (
+                  resultado &&
+                  resultado.erro
+                ) ||
+                "Não foi possível reenviar o e-mail."
+              );
+
+            }
+
+
+            window.dadosCadastro.email =
+              resultado.email ||
+              novoEmail;
+
+
+            emailReenvio.value =
+              window.dadosCadastro.email;
+
+
+            mensagem.textContent =
+              resultado.mensagem ||
+              "Novo e-mail de confirmação enviado.";
+
+
+            botaoReenviar.textContent =
+              "E-mail reenviado";
+
+
+            areaReenvio.style.display =
+              "none";
+
+
+            iniciarContagemReenvio();
+
+
+          } catch (erro) {
+
+            console.error(
+              "Erro ao reenviar e-mail:",
+              erro
+            );
+
+
+            mensagem.textContent =
+              erro.message ||
+              "Não foi possível reenviar o e-mail.";
+
+
+            botaoReenviar.disabled =
+              false;
+
+            botaoReenviar.textContent =
+              "Reenviar o e-mail de confirmação";
+
+          }
+
+        }
+      );
 
     }
-
 
     /* =====================================================
        INTRODUÇÃO
