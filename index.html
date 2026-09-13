@@ -2920,7 +2920,7 @@
        CONFIRMAR E-MAIL
     ===================================================== */
 
-    async function verificarEmail() {
+    function verificarEmail() {
 
       const parametros =
         new URLSearchParams(
@@ -2930,14 +2930,57 @@
       const token =
         parametros.get("verificar");
 
-      /*
-       * Se não existe token, o usuário entrou
-       * normalmente no aplicativo.
-       */
-      if (!token) {
-        apresentarIntroducao();
+      const resultado =
+        parametros.get("verificacao");
+
+
+      /* -----------------------------------------------------
+         RESULTADO DA CONFIRMAÇÃO
+      ----------------------------------------------------- */
+
+      if (resultado === "sucesso") {
+
+        apresentarConfirmacaoEmail();
+
         return;
+
       }
+
+
+      if (resultado === "ja-confirmado") {
+
+        apresentarConfirmacaoEmail();
+
+        return;
+
+      }
+
+
+      if (resultado === "erro") {
+
+        apresentarErroVerificacao();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         ACESSO NORMAL
+      ----------------------------------------------------- */
+
+      if (!token) {
+
+        apresentarIntroducao();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------------
+         AGUARDA CONFIRMAÇÃO
+      ----------------------------------------------------- */
 
       status.textContent =
         "Confirmando cadastro...";
@@ -2945,92 +2988,69 @@
       conteudo.innerHTML =
         '<div class="loading">Confirmando seu e-mail...</div>';
 
-      try {
 
-        const resposta =
-          await fetch(
-            URL_VERIFICACAO +
-            "?verificar=" +
-            encodeURIComponent(token),
-            {
-              method: "GET",
-              cache: "no-store"
-            }
+      /* -----------------------------------------------------
+         CALLBACK RECEBIDO DO APPS SCRIPT
+      ----------------------------------------------------- */
+
+      window.receberConfirmacaoEmail =
+        function(resultado) {
+
+          console.log(
+            "Resposta da confirmação:",
+            resultado
           );
 
-        const textoResposta =
-          await resposta.text();
 
-        console.log(
-          "Resposta da confirmação:",
-          textoResposta
-        );
+          if (
+            resultado &&
+            resultado.sucesso
+          ) {
 
-        if (!resposta.ok) {
-          throw new Error(
-            "Não foi possível confirmar o cadastro."
-          );
-        }
+            apresentarConfirmacaoEmail();
 
-        /*
-         * O doGet atual pode retornar HTML ou JSON.
-         * Primeiro tentamos interpretar como JSON.
-         */
-        let dados = null;
+            return;
 
-        try {
-          dados =
-            JSON.parse(textoResposta);
-        } catch (e) {
-          dados = null;
-        }
+          }
 
-        let confirmado = false;
 
-        if (dados) {
-
-          confirmado =
-            dados.sucesso === true ||
-            dados.confirmado === true ||
-            dados.status === "ATIVO";
-
-        } else {
-
-          const respostaNormalizada =
-            textoResposta
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .toLowerCase();
-
-          confirmado =
-            respostaNormalizada.includes("confirmado") ||
-            respostaNormalizada.includes("cadastro ativo") ||
-            respostaNormalizada.includes("email confirmado") ||
-            respostaNormalizada.includes("e-mail confirmado");
-
-        }
-
-        if (!confirmado) {
           apresentarErroVerificacao();
-          return;
-        }
 
-        apresentarConfirmacaoEmail();
+        };
 
-      } catch (erro) {
 
-        console.error(
-          "ERRO NA CONFIRMAÇÃO:",
-          erro
-        );
+      /* -----------------------------------------------------
+         CONSULTA O APPS SCRIPT SEM REDIRECIONAR
+      ----------------------------------------------------- */
 
-        apresentarErroVerificacao();
+      const script =
+        document.createElement("script");
 
-      }
+
+      script.src =
+        URL_VERIFICACAO +
+        "?verificar=" +
+        encodeURIComponent(token) +
+        "&callback=receberConfirmacaoEmail";
+
+
+      script.onerror =
+        function() {
+
+          console.error(
+            "Não foi possível consultar a confirmação."
+          );
+
+          apresentarErroVerificacao();
+
+        };
+
+
+      document.body.appendChild(
+        script
+      );
 
     }
-
-
     /* =====================================================
        CONFIRMAÇÃO DE E-MAIL — SUCESSO
     ===================================================== */
