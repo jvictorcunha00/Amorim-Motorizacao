@@ -2916,164 +2916,111 @@
     }
 
 
-    /* =====================================================
+        /* =====================================================
        CONFIRMAR E-MAIL
     ===================================================== */
 
-    async function verificarEmail() {
+    function verificarEmail() {
 
       const parametros =
         new URLSearchParams(
           window.location.search
         );
 
-      const token =
-        parametros.get("verificar");
 
       /*
-       * Se não existe token, o usuário entrou
-       * normalmente no aplicativo.
+       * O Apps Script já processou o token.
+       *
+       * Agora o index.html apenas verifica
+       * qual resultado foi enviado na URL.
        */
-      if (!token) {
+
+      const verificacao =
+        parametros.get("verificacao");
+
+
+      /*
+       * USUÁRIO ENTROU NORMALMENTE NO APLICATIVO
+       */
+      if (!verificacao) {
+
         apresentarIntroducao();
+
         return;
+
       }
 
-      status.textContent =
-        "Confirmando cadastro...";
 
-      conteudo.innerHTML =
-        '<div class="loading">Confirmando seu e-mail...</div>';
-
-      try {
-
-        /*
-         * O Apps Script recebe o token pelo doGet.
-         *
-         * A resposta atual do backend é HTML.
-         * Por isso, analisamos o conteúdo retornado
-         * sem interferir no restante do aplicativo.
-         */
-        const resposta =
-          await fetch(
-            URL_VERIFICACAO +
-            "?verificar=" +
-            encodeURIComponent(token) +
-            "&t=" +
-            Date.now(),
-            {
-              method: "GET",
-              cache: "no-store"
-            }
-          );
-
-        const textoResposta =
-          await resposta.text();
-
-        console.log(
-          "Resposta da confirmação:",
-          textoResposta
-        );
-
-        if (!resposta.ok) {
-          throw new Error(
-            "Não foi possível confirmar o cadastro."
-          );
-        }
-
-        /*
-         * Normaliza a resposta para facilitar
-         * a identificação das mensagens do doGet.
-         */
-        const respostaNormalizada =
-          textoResposta
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase();
-
-        /*
-         * ERRO
-         *
-         * O doGet atual retorna essas mensagens
-         * quando o token não é válido, expirou
-         * ou já não existe.
-         */
-        const possuiErro =
-          respostaNormalizada.includes(
-            "link de confirmacao invalido"
-          ) ||
-          respostaNormalizada.includes(
-            "link de confirmacao expirou"
-          ) ||
-          respostaNormalizada.includes(
-            "token de verificacao nao informado"
-          ) ||
-          respostaNormalizada.includes(
-            "nao foi possivel confirmar"
-          );
-
-        if (possuiErro) {
-          apresentarErroVerificacao();
-          return;
-        }
-
-        /*
-         * SUCESSO
-         *
-         * O doGet atual retorna:
-         * "Cadastro ativado com sucesso!"
-         * e/ou
-         * "Seu e-mail foi confirmado..."
-         */
-        const possuiSucesso =
-          respostaNormalizada.includes(
-            "cadastro ativado com sucesso"
-          ) ||
-          respostaNormalizada.includes(
-            "seu e-mail foi confirmado"
-          ) ||
-          respostaNormalizada.includes(
-            "cadastro esta ativo"
-          );
-
-        if (!possuiSucesso) {
-          apresentarErroVerificacao();
-          return;
-        }
+      /*
+       * CONFIRMAÇÃO REALIZADA COM SUCESSO
+       */
+      if (
+        verificacao === "sucesso"
+      ) {
 
         apresentarConfirmacaoEmail();
 
-      } catch (erro) {
+        return;
 
-        console.error(
-          "ERRO NA CONFIRMAÇÃO:",
-          erro
-        );
+      }
+
+
+      /*
+       * CADASTRO JÁ ESTAVA ATIVO
+       */
+      if (
+        verificacao === "ja-confirmado"
+      ) {
+
+        apresentarEmailJaConfirmado();
+
+        return;
+
+      }
+
+
+      /*
+       * ERRO NA CONFIRMAÇÃO
+       */
+      if (
+        verificacao === "erro"
+      ) {
 
         apresentarErroVerificacao();
 
+        return;
+
       }
+
+
+      /*
+       * QUALQUER VALOR DESCONHECIDO
+       */
+      apresentarErroVerificacao();
 
     }
 
 
     /* =====================================================
-       CONFIRMAÇÃO DE E-MAIL — SUCESSO
+       CONFIRMAÇÃO DE E-MAIL — JÁ CONFIRMADO
     ===================================================== */
 
-    function apresentarConfirmacaoEmail() {
+    function apresentarEmailJaConfirmado() {
 
       status.textContent =
-        "Cadastro ativo";
+        "Cadastro já ativo";
+
 
       conteudo.innerHTML =
         "";
+
 
       const container =
         document.createElement("div");
 
       container.className =
         "verificacao";
+
 
       const icone =
         document.createElement("div");
@@ -3088,6 +3035,7 @@
         icone
       );
 
+
       const titulo =
         document.createElement("div");
 
@@ -3095,11 +3043,12 @@
         "verificacao-titulo";
 
       titulo.textContent =
-        "Cadastro ativado!";
+        "Cadastro já confirmado!";
 
       container.appendChild(
         titulo
       );
+
 
       const texto =
         document.createElement("div");
@@ -3108,11 +3057,12 @@
         "verificacao-texto";
 
       texto.textContent =
-        "Seu e-mail foi confirmado e seu cadastro está ativo. Você já pode voltar ao aplicativo e fazer login.";
+        "Este cadastro já foi confirmado e está ativo. Você já pode voltar ao aplicativo e fazer login.";
 
       container.appendChild(
         texto
       );
+
 
       const botao =
         document.createElement("a");
@@ -3131,94 +3081,12 @@
         botao
       );
 
-      conteudo.appendChild(
-        container
-      );
-
-    }
-
-
-    /* =====================================================
-       CONFIRMAÇÃO DE E-MAIL — ERRO
-    ===================================================== */
-
-    function apresentarErroVerificacao() {
-
-      status.textContent =
-        "Não foi possível confirmar";
-
-      conteudo.innerHTML =
-        "";
-
-      const container =
-        document.createElement("div");
-
-      container.className =
-        "verificacao";
-
-      const icone =
-        document.createElement("div");
-
-      icone.className =
-        "verificacao-icone";
-
-      icone.textContent =
-        "!";
-
-      container.appendChild(
-        icone
-      );
-
-      const titulo =
-        document.createElement("div");
-
-      titulo.className =
-        "verificacao-titulo";
-
-      titulo.textContent =
-        "Link de confirmação inválido";
-
-      container.appendChild(
-        titulo
-      );
-
-      const texto =
-        document.createElement("div");
-
-      texto.className =
-        "verificacao-texto";
-
-      texto.textContent =
-        "O link pode ter expirado, já ter sido utilizado ou não ser válido. Solicite um novo link de confirmação se necessário.";
-
-      container.appendChild(
-        texto
-      );
-
-      const botao =
-        document.createElement("a");
-
-      botao.className =
-        "verificacao-botao";
-
-      botao.href =
-        window.location.origin +
-        window.location.pathname;
-
-      botao.textContent =
-        "Voltar ao Assistente Técnico";
-
-      container.appendChild(
-        botao
-      );
 
       conteudo.appendChild(
         container
       );
 
     }
-
-
     /* =====================================================
        INICIAR
     ===================================================== */
