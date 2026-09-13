@@ -361,6 +361,59 @@
       color: #333;
     }
 
+
+    /* =========================
+       CONFIRMAÇÃO DE E-MAIL
+    ========================= */
+
+    .verificacao {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .verificacao-icone {
+      font-size: 52px;
+      line-height: 1;
+    }
+
+    .verificacao-titulo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .verificacao-texto {
+      font-size: 17px;
+      line-height: 1.55;
+      color: #333;
+      max-width: 520px;
+    }
+
+    .verificacao-botao {
+      width: 100%;
+      max-width: 360px;
+      min-height: 55px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 12px;
+      background: #222;
+      color: #fff;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .verificacao-botao:hover {
+      background: #444;
+    }
+
   </style>
 
 </head>
@@ -391,6 +444,14 @@
 
     const URL_API =
       "https://script.google.com/macros/s/AKfycbz8P23T3_yuIUCIICEw9lZ3msR9MrbtXCEkAE5tfHmJcDVLjRS5Xt0XEW73hzOETnz1Fw/exec";
+
+
+    /* =====================================================
+       URL PARA CONFIRMAÇÃO DE E-MAIL
+    ===================================================== */
+
+    const URL_VERIFICACAO =
+      "https://script.google.com/macros/s/AKfycbx3HlA3Y_TA3isEe84CmydN815o83DE4wiwuBh719VcFFHVnDu8mLYgMxIfVtd5AQYP/exec";
 
 
     /* =====================================================
@@ -2856,10 +2917,287 @@
 
 
     /* =====================================================
+       CONFIRMAR E-MAIL
+    ===================================================== */
+
+    async function verificarEmail() {
+
+      const parametros =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      const token =
+        parametros.get("verificar");
+
+      /*
+       * Se não existe token, o usuário entrou
+       * normalmente no aplicativo.
+       */
+      if (!token) {
+        apresentarIntroducao();
+        return;
+      }
+
+      status.textContent =
+        "Confirmando cadastro...";
+
+      conteudo.innerHTML =
+        '<div class="loading">Confirmando seu e-mail...</div>';
+
+      try {
+
+        const resposta =
+          await fetch(
+            URL_VERIFICACAO +
+            "?verificar=" +
+            encodeURIComponent(token),
+            {
+              method: "GET",
+              cache: "no-store"
+            }
+          );
+
+        const textoResposta =
+          await resposta.text();
+
+        console.log(
+          "Resposta da confirmação:",
+          textoResposta
+        );
+
+        if (!resposta.ok) {
+          throw new Error(
+            "Não foi possível confirmar o cadastro."
+          );
+        }
+
+        /*
+         * O doGet atual pode retornar HTML ou JSON.
+         * Primeiro tentamos interpretar como JSON.
+         */
+        let dados = null;
+
+        try {
+          dados =
+            JSON.parse(textoResposta);
+        } catch (e) {
+          dados = null;
+        }
+
+        let confirmado = false;
+
+        if (dados) {
+
+          confirmado =
+            dados.sucesso === true ||
+            dados.confirmado === true ||
+            dados.status === "ATIVO";
+
+        } else {
+
+          const respostaNormalizada =
+            textoResposta
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .toLowerCase();
+
+          confirmado =
+            respostaNormalizada.includes("confirmado") ||
+            respostaNormalizada.includes("cadastro ativo") ||
+            respostaNormalizada.includes("email confirmado") ||
+            respostaNormalizada.includes("e-mail confirmado");
+
+        }
+
+        if (!confirmado) {
+          apresentarErroVerificacao();
+          return;
+        }
+
+        apresentarConfirmacaoEmail();
+
+      } catch (erro) {
+
+        console.error(
+          "ERRO NA CONFIRMAÇÃO:",
+          erro
+        );
+
+        apresentarErroVerificacao();
+
+      }
+
+    }
+
+
+    /* =====================================================
+       CONFIRMAÇÃO DE E-MAIL — SUCESSO
+    ===================================================== */
+
+    function apresentarConfirmacaoEmail() {
+
+      status.textContent =
+        "Cadastro ativo";
+
+      conteudo.innerHTML =
+        "";
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "verificacao";
+
+      const icone =
+        document.createElement("div");
+
+      icone.className =
+        "verificacao-icone";
+
+      icone.textContent =
+        "✓";
+
+      container.appendChild(
+        icone
+      );
+
+      const titulo =
+        document.createElement("div");
+
+      titulo.className =
+        "verificacao-titulo";
+
+      titulo.textContent =
+        "Cadastro ativado!";
+
+      container.appendChild(
+        titulo
+      );
+
+      const texto =
+        document.createElement("div");
+
+      texto.className =
+        "verificacao-texto";
+
+      texto.textContent =
+        "Seu e-mail foi confirmado e seu cadastro está ativo. Você já pode voltar ao aplicativo e fazer login.";
+
+      container.appendChild(
+        texto
+      );
+
+      const botao =
+        document.createElement("a");
+
+      botao.className =
+        "verificacao-botao";
+
+      botao.href =
+        window.location.origin +
+        window.location.pathname;
+
+      botao.textContent =
+        "Voltar ao Assistente Técnico";
+
+      container.appendChild(
+        botao
+      );
+
+      conteudo.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =====================================================
+       CONFIRMAÇÃO DE E-MAIL — ERRO
+    ===================================================== */
+
+    function apresentarErroVerificacao() {
+
+      status.textContent =
+        "Não foi possível confirmar";
+
+      conteudo.innerHTML =
+        "";
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "verificacao";
+
+      const icone =
+        document.createElement("div");
+
+      icone.className =
+        "verificacao-icone";
+
+      icone.textContent =
+        "!";
+
+      container.appendChild(
+        icone
+      );
+
+      const titulo =
+        document.createElement("div");
+
+      titulo.className =
+        "verificacao-titulo";
+
+      titulo.textContent =
+        "Link de confirmação inválido";
+
+      container.appendChild(
+        titulo
+      );
+
+      const texto =
+        document.createElement("div");
+
+      texto.className =
+        "verificacao-texto";
+
+      texto.textContent =
+        "O link pode ter expirado, já ter sido utilizado ou não ser válido. Solicite um novo link de confirmação se necessário.";
+
+      container.appendChild(
+        texto
+      );
+
+      const botao =
+        document.createElement("a");
+
+      botao.className =
+        "verificacao-botao";
+
+      botao.href =
+        window.location.origin +
+        window.location.pathname;
+
+      botao.textContent =
+        "Voltar ao Assistente Técnico";
+
+      container.appendChild(
+        botao
+      );
+
+      conteudo.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =====================================================
        INICIAR
     ===================================================== */
 
-    apresentarIntroducao();
+    verificarEmail();
 
   </script>
 
