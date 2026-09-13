@@ -94,6 +94,20 @@
       gap: 14px;
     }
 
+    .link-sem-cadastro {
+      display: block;
+      margin-top: 18px;
+      color: #777;
+      font-size: 13px;
+      text-align: center;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .link-sem-cadastro:hover {
+      color: #222;
+    }
+
     .botao-acesso {
       width: 100%;
       min-height: 58px;
@@ -856,6 +870,8 @@
 
     window.statusInstalador = "";
 
+    window.modoSemCadastro = false;
+
     window.motorSelecionado = null;
 
     window.controleSelecionado = null;
@@ -910,7 +926,7 @@
           </div>
 
           <div class="tela-inicial-subtitulo">
-            Acesse sua conta ou crie seu cadastro para continuar.
+            Acesse sua conta, crie seu cadastro ou continue sem cadastro.
           </div>
 
           <div class="botoes-acesso">
@@ -933,6 +949,14 @@
 
           </div>
 
+          <a
+            href="#"
+            class="link-sem-cadastro"
+            id="btnSemCadastro"
+          >
+            Continuar sem cadastro
+          </a>
+
         </div>
       `;
 
@@ -941,6 +965,9 @@
         .addEventListener(
           "click",
           function() {
+
+            window.modoSemCadastro =
+              false;
 
             apresentarLogin();
 
@@ -954,6 +981,22 @@
           function() {
 
             apresentarCadastro();
+
+          }
+        );
+
+      document
+        .getElementById("btnSemCadastro")
+        .addEventListener(
+          "click",
+          function(event) {
+
+            event.preventDefault();
+
+            window.modoSemCadastro =
+              true;
+
+            apresentarIntroducao(true);
 
           }
         );
@@ -1297,7 +1340,10 @@
             window.dataRedefinicaoSenha =
               resultado.dataRedefinicao || "";
 
-            apresentarIntroducao();
+            window.modoSemCadastro =
+              false;
+
+            apresentarIntroducao(false);
 
           } catch (erroLogin) {
 
@@ -2931,7 +2977,10 @@
        INTRODUÇÃO
     ===================================================== */
 
-    function apresentarIntroducao() {
+    function apresentarIntroducao(modoSemCadastro) {
+
+      modoSemCadastro =
+        Boolean(modoSemCadastro);
 
       status.textContent =
         "Identificação do atendimento";
@@ -2983,51 +3032,51 @@
       );
 
 
-      const campoNome =
-        document.createElement("div");
+      if (modoSemCadastro) {
 
-      campoNome.className =
-        "campo-introducao";
+        const campoNome =
+          document.createElement("div");
 
-
-      const labelNome =
-        document.createElement("label");
-
-      labelNome.textContent =
-        "Nome do instalador";
+        campoNome.className =
+          "campo-introducao";
 
 
-      const inputNome =
-        document.createElement("input");
+        const labelNome =
+          document.createElement("label");
 
-      inputNome.type =
-        "text";
-
-      inputNome.id =
-        "nomeInstalador";
-
-      inputNome.placeholder =
-        "Digite seu nome";
-
-      inputNome.autocomplete =
-        "name";
-
-      inputNome.value =
-        window.nomeInstalador || "";
+        labelNome.textContent =
+          "Nome do instalador";
 
 
-      campoNome.appendChild(
-        labelNome
-      );
+        const inputNome =
+          document.createElement("input");
 
-      campoNome.appendChild(
-        inputNome
-      );
+        inputNome.type =
+          "text";
+
+        inputNome.id =
+          "nomeInstalador";
+
+        inputNome.placeholder =
+          "Digite seu nome";
+
+        inputNome.autocomplete =
+          "name";
 
 
-      container.appendChild(
-        campoNome
-      );
+        campoNome.appendChild(
+          labelNome
+        );
+
+        campoNome.appendChild(
+          inputNome
+        );
+
+        container.appendChild(
+          campoNome
+        );
+
+      }
 
 
       const campoRevenda =
@@ -3101,7 +3150,20 @@
       );
 
 
-      inputNome.focus();
+      if (modoSemCadastro) {
+
+        const inputNome =
+          document.getElementById(
+            "nomeInstalador"
+          );
+
+        inputNome.focus();
+
+      } else {
+
+        inputRevenda.focus();
+
+      }
 
     }
 
@@ -3119,31 +3181,35 @@
         document.getElementById("revenda");
 
 
-      if (!inputNome || !inputRevenda) {
-
-        listarMotores();
-
-        return;
-
-      }
-
-
-      const nome =
-        inputNome.value.trim();
-
       const revenda =
-        inputRevenda.value.trim();
+        inputRevenda
+          ? inputRevenda.value.trim()
+          : "";
 
 
-      if (!nome) {
+      if (window.modoSemCadastro) {
 
-        alert(
-          "Informe o nome do instalador."
-        );
+        const nome =
+          inputNome
+            ? inputNome.value.trim()
+            : "";
 
-        inputNome.focus();
 
-        return;
+        if (!nome) {
+
+          alert(
+            "Informe o nome do instalador."
+          );
+
+          inputNome.focus();
+
+          return;
+
+        }
+
+
+        window.nomeInstalador =
+          nome;
 
       }
 
@@ -3154,15 +3220,14 @@
           "Informe o nome da revenda."
         );
 
-        inputRevenda.focus();
+        if (inputRevenda) {
+          inputRevenda.focus();
+        }
 
         return;
 
       }
 
-
-      window.nomeInstalador =
-        nome;
 
       window.revenda =
         revenda;
@@ -3174,6 +3239,11 @@
       );
 
       console.log(
+        "ID do instalador:",
+        window.idInstalador
+      );
+
+      console.log(
         "Revenda:",
         window.revenda
       );
@@ -3182,6 +3252,7 @@
       listarMotores();
 
     }
+
 
 
     /* =====================================================
