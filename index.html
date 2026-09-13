@@ -292,6 +292,30 @@
       gap: 12px;
     }
 
+    .tela-login {
+      max-width: 520px;
+      margin: 30px auto 0;
+    }
+
+    .login-acoes {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .mensagem-login {
+      display: none;
+      color: #b00020;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .mensagem-login.visivel {
+      display: block;
+    }
+
     .campo-reenvio {
       display: flex;
       flex-direction: column;
@@ -786,6 +810,12 @@
 
     window.revenda = "";
 
+    window.idInstalador = "";
+
+    window.emailInstalador = "";
+
+    window.statusInstalador = "";
+
     window.motorSelecionado = null;
 
     window.controleSelecionado = null;
@@ -872,9 +902,7 @@
           "click",
           function() {
 
-            alert(
-              "A tela de login será adicionada na próxima etapa."
-            );
+            apresentarLogin();
 
           }
         );
@@ -889,6 +917,301 @@
 
           }
         );
+
+    }
+
+
+    /* =====================================================
+       LOGIN
+    ===================================================== */
+
+    function apresentarLogin() {
+
+      status.textContent =
+        "Entrar";
+
+      conteudo.innerHTML = `
+        <div class="tela-login">
+
+          <div class="resultado-titulo">
+            Acesse sua conta
+          </div>
+
+          <div class="introducao-texto">
+            Informe seu e-mail e senha para continuar.
+          </div>
+
+          <div class="campos-cadastro">
+
+            <div class="campo-cadastro">
+              <label for="loginEmail">
+                E-mail
+              </label>
+
+              <input
+                type="email"
+                id="loginEmail"
+                placeholder="Digite seu e-mail"
+                autocomplete="email"
+                required
+              >
+            </div>
+
+            <div class="campo-cadastro">
+              <label for="loginSenha">
+                Senha
+              </label>
+
+              <div class="campo-senha">
+                <input
+                  type="password"
+                  id="loginSenha"
+                  placeholder="Digite sua senha"
+                  autocomplete="current-password"
+                  required
+                >
+
+                <button
+                  type="button"
+                  class="botao-visualizar-senha"
+                  id="btnMostrarLoginSenha"
+                  aria-label="Mostrar senha"
+                  title="Mostrar senha"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
+                </button>
+              </div>
+
+              <div
+                class="mensagem-login"
+                id="erroLogin"
+              ></div>
+            </div>
+
+          </div>
+
+          <div class="login-acoes">
+
+            <button
+              type="button"
+              class="botao-continuar-cadastro"
+              id="btnLogin"
+            >
+              Entrar
+            </button>
+
+            <button
+              type="button"
+              class="botao-acesso secundario"
+              id="btnVoltarLogin"
+            >
+              Voltar
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+      const email =
+        document.getElementById("loginEmail");
+
+      const senha =
+        document.getElementById("loginSenha");
+
+      const erro =
+        document.getElementById("erroLogin");
+
+      const botaoLogin =
+        document.getElementById("btnLogin");
+
+      const botaoVoltar =
+        document.getElementById("btnVoltarLogin");
+
+      configurarOlho(
+        document.getElementById("btnMostrarLoginSenha"),
+        senha
+      );
+
+      function mostrarErro(mensagem) {
+
+        erro.textContent =
+          mensagem;
+
+        erro.classList.add(
+          "visivel"
+        );
+
+        senha.classList.add(
+          "campo-invalido"
+        );
+
+      }
+
+      email.addEventListener(
+        "input",
+        function() {
+
+          erro.textContent =
+            "";
+
+          erro.classList.remove(
+            "visivel"
+          );
+
+          senha.classList.remove(
+            "campo-invalido"
+          );
+
+        }
+      );
+
+      senha.addEventListener(
+        "input",
+        function() {
+
+          erro.textContent =
+            "";
+
+          erro.classList.remove(
+            "visivel"
+          );
+
+          senha.classList.remove(
+            "campo-invalido"
+          );
+
+        }
+      );
+
+      botaoVoltar.addEventListener(
+        "click",
+        function() {
+
+          apresentarTelaInicial();
+
+        }
+      );
+
+      botaoLogin.addEventListener(
+        "click",
+        async function() {
+
+          const emailInformado =
+            email.value
+              .trim()
+              .toLowerCase();
+
+          const senhaInformada =
+            senha.value;
+
+          if (!emailInformado) {
+
+            mostrarErro(
+              "Informe seu e-mail."
+            );
+
+            email.focus();
+
+            return;
+
+          }
+
+          if (!senhaInformada) {
+
+            mostrarErro(
+              "Informe sua senha."
+            );
+
+            senha.focus();
+
+            return;
+
+          }
+
+          botaoLogin.disabled =
+            true;
+
+          botaoLogin.textContent =
+            "Entrando...";
+
+          erro.textContent =
+            "";
+
+          erro.classList.remove(
+            "visivel"
+          );
+
+          try {
+
+            const resultado =
+              await chamarAPI({
+                acao:
+                  "autenticarInstalador",
+                email:
+                  emailInformado,
+                senha:
+                  senhaInformada
+              });
+
+            if (
+              !resultado ||
+              !resultado.sucesso
+            ) {
+
+              throw new Error(
+                (
+                  resultado &&
+                  resultado.erro
+                ) ||
+                "E-mail ou senha inválidos."
+              );
+
+            }
+
+            window.idInstalador =
+              resultado.id || "";
+
+            window.nomeInstalador =
+              (
+                (resultado.primeiroNome || "") +
+                " " +
+                (resultado.sobrenome || "")
+              ).trim();
+
+            window.emailInstalador =
+              resultado.email ||
+              emailInformado;
+
+            window.statusInstalador =
+              resultado.status || "";
+
+            apresentarIntroducao();
+
+          } catch (erroLogin) {
+
+            console.error(
+              "Erro ao autenticar instalador:",
+              erroLogin
+            );
+
+            mostrarErro(
+              erroLogin.message ||
+              "Não foi possível realizar o login."
+            );
+
+            botaoLogin.disabled =
+              false;
+
+            botaoLogin.textContent =
+              "Entrar";
+
+          }
+
+        }
+      );
+
+      email.focus();
 
     }
 
@@ -2033,6 +2356,9 @@
 
       inputNome.autocomplete =
         "name";
+
+      inputNome.value =
+        window.nomeInstalador || "";
 
 
       campoNome.appendChild(
